@@ -1,0 +1,35 @@
+{
+  "name": "solid-debugger",
+  "version": "0.0.1",
+  "description": "",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "exports": {
+    ".": {
+      "solid": "./dist/source/index.jsx",
+      "import": "./dist/esm/index.js",
+      "browser": "./dist/esm/index.js"
+    }
+  },
+  "types": "./dist/types/index.d.ts",
+  "scripts": {
+    "build": "rollup -c",
+    "format": "prettier -w \"src/**/*.tsx\" --print-width 120",
+    "dev": "rollup -w -c"
+  },
+  "author": "modderme123",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/d3": "^6.3.0",
+    "prettier": "^2.2.1",
+    "rollup": "^2.45.1",
+    "rollup-preset-solid": "^0.3.0",
+    "solid-js": "^0.26.0"
+  },
+  "dependencies": {
+    "d3": "^6.6.2"
+  },
+  "peerDependencies": {
+    "solid-js": ">=0.26"
+  }
+}
