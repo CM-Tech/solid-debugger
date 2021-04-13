@@ -1,10 +1,10 @@
 {
-    "compilerOptions": {
-      "jsx": "preserve",
-      "jsxImportSource": "solid-js",
-      "target": "ESNext",
-      "module": "ESNext",
-      "moduleResolution": "node"
-    }
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "noImplicitAny": true
   }
-  
+}

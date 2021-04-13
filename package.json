@@ -14,7 +14,7 @@
   "types": "./dist/types/index.d.ts",
   "scripts": {
     "build": "rollup -c",
-    "format": "prettier -w \"src/**/*.tsx\" --print-width 120",
+    "format": "prettier -w . --print-width 120",
     "dev": "rollup -w -c"
   },
   "author": "modderme123",

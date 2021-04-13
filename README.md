@@ -7,11 +7,7 @@ import { render } from "solid-js/web";
 import { Debugger } from "solid-debugger";
 
 function App() {
-  return (
-    <Debugger>
-      your app code here
-    </Debugger>
-  );
+  return <Debugger>your app code here</Debugger>;
 }
 
 render(App, document.getElementById("app"));
