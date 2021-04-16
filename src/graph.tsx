@@ -150,7 +150,7 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
         .attr("fill", "white")
         .transition()
         .duration(400)
-        .attr("fill", "red");
+        .attr("fill", (d) => ((d as Computation).componentName ? "green" : "red"));
 
       link = link.data(links).join("line").attr("stroke", "#999").attr("stroke-opacity", 0.6).attr("stroke-width", 2);
 
