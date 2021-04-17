@@ -41,9 +41,10 @@ Object.defineProperty(window, "_$afterUpdate", {
   },
 });
 const SelEl: Component<{ sty: any }> = (props) => {
+  // FIXME
   return (
-    <div class="bad">
-      <style>{`.bad{
+    <div class="bad-selection-class">
+      <style>{`.bad-selection-class{
   position:${props.sty.position};
   width:${props.sty.width};
   height:${props.sty.height};
