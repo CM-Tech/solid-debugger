@@ -1,0 +1,3 @@
+{
+  "**/*.{ts,tsx,css,html,json,yaml,js,jsx}": "prettier -w --print-width 120 --quote-props consistent"
+}
