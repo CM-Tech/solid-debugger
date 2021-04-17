@@ -8,7 +8,7 @@ import { ErrorNode } from './ErrorNode';
 import objType from './objType';
 import { Component } from 'solid-js';
 import { JSONObjectNode } from './JSONObjectNode';
-export const JSONNode: Component<{ value: any; key: string; isParentExpanded?: boolean; isParentArray?: boolean; }> = (props) => {
+export const JSONNode: Component<{ value: any; key: string; isParentExpanded?: boolean; isParentArray?: boolean;isParentHTML?: boolean; }> = (props) => {
   const nodeType = objType(props.value);
   const ComponentType = getComponent(nodeType);
   const valueGetter = getValueGetter(nodeType);
@@ -70,5 +70,5 @@ export const JSONNode: Component<{ value: any; key: string; isParentExpanded?: b
   }
 
 
-  return <ComponentType key={props.key} value={props.value} isParentExpanded={props.isParentExpanded} isParentArray={props.isParentArray} nodeType={nodeType} valueGetter={valueGetter} />
+  return <ComponentType key={props.key} value={props.value} isParentExpanded={props.isParentExpanded} isParentArray={props.isParentArray} isParentHTML={props.isParentHTML} nodeType={nodeType} valueGetter={valueGetter} />
 }

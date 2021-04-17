@@ -4,7 +4,7 @@ import { JSONKey } from './JSONKey';
 import { Show, Component, For, createMemo, createSignal, createEffect } from 'solid-js';
 
 
-export const JSONNested: Component<{ label?: string; isArray?: boolean; getValue?: (v: any) => any;getPreviewValue?:(v: any) => any;getKey?: (v: any) => any; isParentExpanded: boolean; isParentArray: boolean; key: any; keys: any[];expandable?:boolean;previewCount?:number; expanded?: boolean; previewKeys?: string[]; colon?: string; bracketOpen: JSX.Element; bracketClose: string; }> = (props) => {
+export const JSONNested: Component<{ isParentHTML?:boolean;label?: string; isArray?: boolean;isHTML?:boolean; getValue?: (v: any) => any;getPreviewValue?:(v: any) => any;getKey?: (v: any) => any; isParentExpanded: boolean; isParentArray: boolean; key: any; keys: any[];expandable?:boolean;previewCount?:number; expanded?: boolean; previewKeys?: string[]; colon?: string; bracketOpen: JSX.Element; bracketClose: string; }> = (props) => {
   let previewKeys = createMemo(()=>props.previewKeys ?? props.keys);
   let [expanded, setExpanded] = createSignal(props.expanded ?? false);
 
@@ -35,7 +35,7 @@ export const JSONNested: Component<{ label?: string; isArray?: boolean; getValue
     <Show when={props.isParentExpanded}>
       <ul classList={{ collapse: !expanded() }} onClick={expand} style={{"list-style":"none"}}>
         <For each={slicedKeys()}>{(key, index) => <>
-          <JSONNode key={(props.getKey ?? ((key: string) => key))(key)} isParentExpanded={expanded()} isParentArray={props.isArray ?? false} value={expanded() ? (props.getValue ?? ((key: string) => key))(key) : (props.getPreviewValue ?? props.getValue)(key)} />
+          <JSONNode key={(props.getKey ?? ((key: string) => key))(key)} isParentExpanded={expanded()} isParentHTML={props.isHTML??false} isParentArray={props.isArray ?? false} value={expanded() ? (props.getValue ?? ((key: string) => key))(key) : (props.getPreviewValue ?? props.getValue)(key)} />
           <Show when={!expanded() && index() < previewKeys().length - 1}>
             <span class="comma">,</span>
           </Show>
