@@ -1,15 +1,19 @@
-import { Component, createSignal, For, getOwner } from "solid-js";
+import { Component, createSignal, For, getOwner, runWithOwner } from "solid-js";
+
+import { writeSignal } from "solid-js/dev";
 import { valueToString } from "./utils";
+import Editor from "./editor";
 
 type Owner = NonNullable<ReturnType<typeof getOwner>>;
 type ComputationArr = NonNullable<Owner["owned"]>;
 type Computation = ComputationArr[number];
 type Signal = NonNullable<Computation["sources"]>[number];
+let updating = false;
 
 export const SignalList: Component<{ root: Owner }> = (props) => {
-  let [bla, setBla] = createSignal(false);
-
   let signals = [] as Signal[];
+
+  let [signalsS, setSignalsS] = createSignal([]);
   let walked = new Set();
 
   let queue = [props.root];
@@ -19,7 +23,6 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
     [...((x as Computation).sources || []), ...[(x as Computation).owner]].forEach((y) => oneEl(y));
 
     walked.add(x);
-
     // if (values.get(x) != x.value) updated.add(x);
     // values.set(x, x.value);
     if ((x as Signal).value != undefined) {
@@ -34,20 +37,28 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
   while (queue.length) oneEl(queue.shift()!);
 
   window._$afterUpdate = () => {
-    signals = [];
-    walked.clear();
-    queue = [props.root];
-    while (queue.length) oneEl(queue.shift()!);
+    if (!updating) {
+      signals = [];
+      walked.clear();
+      queue = [props.root];
+      while (queue.length) {
+        oneEl(queue.shift()!);
+      }
+      updating = true;
+      setSignalsS(signals);
+    }
+    updating = false;
   };
 
   return (
     <div style="position: relative">
       <div style="overflow: auto scroll; max-height:100%;">
-        <For each={(bla() || true) && signals}>
-          {(el) => (
-            <div style="display: flex; border-bottom: 1px solid rgb(34, 46, 62); cursor: pointer; align-items: stretch;">
-              <div
-                style="flex: 0 0 auto; 
+        <div style="display :grid;grid-template-columns: 1fr 3fr;">
+          <For each={signalsS()}>{
+            (el) =>
+              <>
+                <div
+                  style={`
            /*width: 2rem; */
            min-height: 32px;
            background: rgb(0, 107, 255);
@@ -56,30 +67,29 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
            justify-content: center; 
            font-weight: bold; 
            color: white;
-           text-shadow: black 0px 0px 10px;"
-              >
-                {el.name}
-              </div>
-              <code style="color:white;font-size: 0.9em; padding: 0.5rem;line-height: 1;">
-                {valueToString(el.value)}
-              </code>
-            </div>
-          )}
-        </For>
+           text-shadow: black 0px 0px 10px;`}
+                >
+                  {el.name}/{el.fName}
+                </div>
+                <Editor
+                  url={""}
+                  disabled={false}
+                  styles={{}}
+                  style={`display:grid;flex-grow:1;min-height:19px`}
+                  onDocChange={(v) => {
+                    try {
+                      let val = eval(v);
+                      writeSignal.bind(el)(val);
+                    } catch {
+                      console.log("FAIL", el, v);
+                    }
+                  }}
+                  value={valueToString(el.value)}
+                ></Editor>
+              </>
+          }</For>
+        </div>
       </div>
-      <button
-        style="position: absolute;
-    top: 0; right: 0;
-    margin: 0.5rem;
-    padding: 0.5em;
-    background: rgb(63, 78, 96);
-    border: 0px;
-    border-radius: 0.3em;
-    color: white;"
-        onClick={() => setBla(!bla())}
-      >
-        Refresh
-      </button>
     </div>
   );
 };

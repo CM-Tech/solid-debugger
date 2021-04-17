@@ -1,0 +1,50 @@
+.collapse {
+  display: inline;
+
+  padding-left: 0;
+}
+.collapse li {
+  display: inline;
+}
+.indent {
+  padding-left: var(--li-identation);
+}
+label {
+  position: relative;
+  display: inline-block;
+}
+
+.String {
+  color: #ff5c57;
+}
+.Date {
+  color: #8d8d8d;
+}
+.Number {
+  color: #57c7ff;
+}
+.Boolean {
+  color: #9aedfe;
+}
+.Null {
+  color: #8d8d8d;
+}
+.Undefined {
+  color: #8d8d8d;
+}
+.Function {
+  color: #ff6ac1;
+  font-style: italic;
+}
+.Symbol {
+  color: #cb3f41;
+}
+.arrow-container {
+  position: relative;
+  height: 1em;
+}
+.arrow {
+  position: absolute;
+  right: 0;
+  top: 0;
+}

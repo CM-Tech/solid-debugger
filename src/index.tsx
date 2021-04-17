@@ -1,6 +1,7 @@
-import { Component, createEffect, createRoot, createSignal, For, getOwner, onMount, Show } from "solid-js";
+import { Component, createEffect, createRoot, createSignal, getOwner, Show } from "solid-js";
 import { NodeGraph } from "./graph";
 import { SignalList } from "./signals";
+import { defaultTheme } from "./theme/defaultTheme";
 
 export const Debugger: Component<{}> = (props) => {
   let self = getOwner()!;
@@ -41,12 +42,16 @@ export const Debugger: Component<{}> = (props) => {
     });
 
     const buttonStyles = `
-      padding: 0.2em 0.4em;
-      color: white;
-      margin: 0.5em;
-      font-weight: bold;
-      text-shadow: black 0px 0px 10px;
-      border-radius: 0.2em;`;
+    display: inline-flex;
+    box-sizing: border-box;
+    max-width: 100%;
+    border:none;
+    color: ${defaultTheme.colors.foregroundColor};
+    min-width: 0px;
+    min-height: 0px;
+    flex-direction: column;
+    padding: 12px 24px;
+    border-radius: 0px;`;
 
     return (
       <>
@@ -84,7 +89,7 @@ export const Debugger: Component<{}> = (props) => {
                 display: grid;
                 grid-template-rows: auto minmax(0, 1fr);
                 grid-template-columns: 1fr;
-                background-color: rgb(11, 21, 33);
+                background-color: ${defaultTheme.colors.backgroundColor};
                 color: white;
                 position: fixed;
                 bottom: 0px;
@@ -122,26 +127,26 @@ export const Debugger: Component<{}> = (props) => {
               Close
             </button>
             <div
-              style="padding: 0.5rem;
-              background: rgb(19, 35, 55);
+              style={`padding: 0.5rem;
+              background: ${defaultTheme.colors.backgroundColor};
               display: flex;
               justify-content: space-between;
-              align-items: center;"
+              align-items: center;`}
               onMouseDown={[setIsDragging, true]}
             >
               <div style="font-size: 1.2rem; font-weight: bold;">Signals</div>
               <div>
                 <button
-                  style={`${buttonStyles} 
-                    background: rgb(0, 107, 255); 
-                    opacity: ${tab() == "effects" ? 1 : 0.3};`}
-                  onClick={() => setTab("effects")}
+                  style={`${buttonStyles}
+                    background: ${defaultTheme.colors.ansi.blue}; 
+                    opacity: ${tab() == "signals" ? 1 : 0.3};`}
+                  onClick={() => setTab("signals")}
                 >
-                  Effects
+                  Signals
                 </button>
                 <button
                   style={`${buttonStyles} 
-                    background: rgb(0, 171, 82); 
+                    background: ${defaultTheme.colors.ansi.green}; 
                     opacity: ${tab() == "graph" ? 1 : 0.3};`}
                   onClick={() => setTab("graph")}
                 >
@@ -152,7 +157,7 @@ export const Debugger: Component<{}> = (props) => {
             <Show when={tab() == "graph"}>
               <NodeGraph root={root} />
             </Show>
-            <Show when={tab() == "effects"}>
+            <Show when={tab() == "signals"}>
               <SignalList root={comp} />
             </Show>
           </div>

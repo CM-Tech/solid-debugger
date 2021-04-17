@@ -2,6 +2,8 @@ import { Component, createEffect, createRoot, createSignal, For, getOwner, onMou
 import { select, zoom, forceManyBody, forceSimulation, forceY, forceLink, forceX, BaseType } from "d3";
 import type { SimulationLinkDatum, SimulationNodeDatum, Selection, ForceLink } from "d3";
 import { valueToString } from "./utils";
+import Editor from "./editor";
+import { defaultTheme } from "./theme/defaultTheme";
 
 type Owner = NonNullable<ReturnType<typeof getOwner>>;
 type ComputationArr = NonNullable<Owner["owned"]>;
@@ -11,6 +13,9 @@ type Item = (Computation | Signal) & SimulationNodeDatum;
 type Link = SimulationLinkDatum<Item>;
 
 export const NodeGraph: Component<{ root: Owner }> = (props) => {
+
+const componentNodeColor=defaultTheme.colors.ansi.green;
+const normalNodeColor=defaultTheme.colors.ansi.blue;
   let el!: SVGSVGElement;
   let [active, setActive] = createSignal(props.root as Computation | Signal, undefined, {
     name: "analyze-node",
@@ -92,20 +97,22 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
       .selectAll("line")
       .data(links)
       .join("line")
-      .attr("stroke", "#999")
-      .attr("stroke-opacity", 0.6)
-      .attr("stroke-width", 2);
+      .attr("stroke", "#D8DEE9")
+      .attr("stroke-opacity", 1)
+      .attr("stroke-width", 1);
 
+    const zoome =  zoom<SVGSVGElement, unknown>()
+    .scaleExtent([0.1, 1])
+    .on("zoom", ({ transform }) => g.attr("transform", transform))
+    zoome.translateBy(svg,(window.innerWidth - 2 - left())/2, 0)
     svg.call(
-      zoom<SVGSVGElement, unknown>()
-        .scaleExtent([0.1, 1])
-        .on("zoom", ({ transform }) => g.attr("transform", transform))
+     zoome
     );
 
     const createNode = <T extends BaseType>(x: Selection<T, Item, SVGGElement, unknown>) =>
       x
         .attr("r", 10)
-        .attr("fill", (d) => ((d as Computation).componentName ? "green" : "red"))
+        .attr("fill", (d) => ((d as Computation).componentName ? componentNodeColor : normalNodeColor))
         .style("cursor", "pointer")
         .on("click", (e, d) => {
           setActive(d);
@@ -116,15 +123,15 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
             .filter(
               (x) => x != d && (d as Computation).owner != x /*&& !(d as Computation).sources?.includes(x as Signal)*/
             )
-            .style("fill", "#B8B8B8");
+            .style("opacity", 0.6);
 
           link
             .filter((l) => l.target == d)
-            .style("stroke", "#69b3b2")
-            .style("stroke-width", 4);
+            .style("stroke", "#88C0D0")
+            .style("stroke-width", 2);
         })
         .on("mouseout", () => {
-          node.style("fill", null);
+          node.style("opacity", null);
           link.style("stroke", null).style("stroke-width", null);
         });
 
@@ -150,9 +157,9 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
         .attr("fill", "white")
         .transition()
         .duration(400)
-        .attr("fill", (d) => ((d as Computation).componentName ? "green" : "red"));
+        .attr("fill", (d) => ((d as Computation).componentName ? componentNodeColor : normalNodeColor));
 
-      link = link.data(links).join("line").attr("stroke", "#999").attr("stroke-opacity", 0.6).attr("stroke-width", 2);
+      link = link.data(links).join("line").attr("stroke", "#D8DEE9").attr("stroke-opacity", 1).attr("stroke-width", 1);
 
       simulation.nodes(nodes);
       (simulation.force("link") as ForceLink<Item, Link>).links(links);
@@ -177,7 +184,7 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
     });
   });
 
-  let [left, setLeft] = createSignal(200);
+  let [left, setLeft] = createSignal(400);
   const [isDragging, setIsDragging] = createSignal(false);
 
   const onMouseMove = (e: MouseEvent) => {
@@ -199,25 +206,22 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
   });
 
   return (
-    <div style={`display:grid; width:100%;height:100%;grid-template-columns: 1fr 2px ${left()}px;`}>
-      <svg ref={el}></svg>
+    <div style={`display:grid; width:100%;height:100%;grid-template-columns: 1fr 2px ${left()}px;box-shadow:rgba(0, 0, 0, 0.4) 0 6px 6px -6px inset;`}>
+      <svg ref={el} style={`box-shadow:rgba(0, 0, 0, 0.4) -6px 0 6px -6px inset;`}></svg>
       <div
         style="border-left: 1px solid rgb(63, 78, 96); cursor: col-resize;"
         onMouseDown={[setIsDragging, true]}
       ></div>
       <div style="overflow: auto;">
-        <div>
-          <code style="color: white;">name: {valueToString(active().name)}</code>
-        </div>
-        <div>
-          <code style="color: white;">componentName: {(active() as Computation).componentName}</code>
-        </div>
-        <div>
-          <code style="color: white;">value: {valueToString(active().value)}</code>
-        </div>
-        <div>
-          <code style="color: white;">fn: {(active() as Computation).fn?.toString()}</code>
-        </div>
+        {["name","componentName","value","fn"].map(x=>
+        <div style={`display:flex;flex-wrap:nowrap;`}>
+          <code style={`color: #d8dee9; flex-shrink:0; flex-grow:0;font-family: "Droid Sans Mono", monospace, monospace, "Droid Sans Fallback";
+    font-weight: normal;
+    font-size: 14px;
+    line-height:19px;
+`}>{x}:</code> {valueToString((active() as any)[x])}
+        </div>)
+        }
       </div>
     </div>
   );
