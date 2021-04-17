@@ -63,10 +63,8 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
       });
 
       myDepth = Math.max(...(parents.length ? parents : [-1])) + 1;
-      if (parentsO.length && parentsO[0].x && parentsO[0].y && (!x.x || !x.y)) {
-        x.x = parentsO[0].x;
-        x.y = parentsO[0].y + 100;
-      }
+      x.x ||= (parentsO[0]?.x ?? 0) + Math.random();
+      x.y ||= myDepth + Math.random();
       nodes.push(x);
     }
     depth.set(x, myDepth);
@@ -92,28 +90,12 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
       });
 
     const g = svg.append("g");
-
-    let simulation = forceSimulation<Item, Link>(nodes)
-      .force("charge", forceManyBody().strength(-200))
-      .force(
-        "link",
-        forceLink()
-          .links(links)
-          .strength(1)
-          .distance((l) => (depth.get(l.target as Item)! - depth.get(l.source as Item)!) * 100)
-      )
-      .force(
-        "x",
-        forceX(0).strength((d) => (depth.get(d as Item) == 0 ? 0.5 : 0.01))
-      )
-      .force(
-        "y",
-        forceY()
-          .y((d) => depth.get(d as Item)! * 100)
-          .strength(2)
-      )
-      .alpha(0.1)
-      .alphaDecay(0.01);
+    let findChildrenFromLinks = (pI: Item) => {
+      return links.filter((x) => x.source === pI).map((x) => x.target as Item);
+    };
+    let findParentsFromLinks = (pI: Item) => {
+      return [(pI as Computation).owner as Item].filter((x) => x && x != props.root);
+    };
 
     let link = g
       .append("g")
@@ -191,22 +173,62 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
         );
 
       link = link.data(links).join("line").attr("stroke", "#D8DEE9").attr("stroke-opacity", 1).attr("stroke-width", 1);
-
-      simulation.nodes(nodes);
-      (simulation.force("link") as ForceLink<Item, Link>).links(links);
-      simulation.alpha(0.1).restart();
     };
 
-    simulation.on("tick", () => {
+    const tick = () => {
       link
-        .attr("x1", (d) => (d.source as Item).x!)
-        .attr("y1", (d) => (d.source as Item).y!)
-        .attr("x2", (d) => (d.target as Item).x!)
-        .attr("y2", (d) => (d.target as Item).y!);
+        .attr("x1", (d) => (d.source as Item).xx!)
+        .attr("y1", (d) => (d.source as Item).yy!)
+        .attr("x2", (d) => (d.target as Item).xx!)
+        .attr("y2", (d) => (d.target as Item).yy!);
+      const compNodes = (a: Item, b: Item): number => {
+        let aP = findParentsFromLinks(a);
+        let bP = findParentsFromLinks(b);
+        if (aP.length > 0 && bP.length > 0) {
+          let r = compNodes(aP[0], bP[0]);
+          if (r !== 0) {
+            return r;
+          }
+        }
+        return a.x - b.x;
+      };
+      let sortedRows = {};
+      for (let i = 0; i < 10; i++)
+        nodes.forEach((d: Item) => {
+          let pI = (d as Computation).owner as Item;
+          if (!pI || pI == props.root) return;
+          let children = findChildrenFromLinks(d);
+          let MUL = 100;
+          let myDepth = depth.get(d);
+          let row = sortedRows[myDepth];
+          if (!row) {
+            row = nodes.filter((x) => depth.get(x) === myDepth);
+            row.sort(compNodes);
+            sortedRows[myDepth] = row;
+          }
+          let xi = row.indexOf(d);
+          let fx = 0;
+          if (xi < row.length - 1) {
+            fx += 0.1 * Math.min(0, row[xi + 1].x - MUL - d.x);
+          }
+          if (xi > 0) {
+            fx += 0.1 * Math.max(0, row[xi - 1].x + MUL - d.x);
+          }
+          let targetChildrenMean =
+            children.length > 0 ? children.map((x) => x.x).reduce((a, b) => a + b) / children.length : 0;
+          if (children.length > 0) {
+            fx += 0.02 * (targetChildrenMean - d.x);
+          }
+          d.x += fx; // * 0.9+0.1*(0.5*targetChildrenMean+0.5*Math.max((pI.x + sOff),diff+d.x+MUL));// + ((pI.x + sOff) / 2 * 2) * 0.01;//Math.max(-diff+d.x+MUL,pI.x+sOff);//m+100+Math.random()-0.5;
+          d.y = depth.get(d)! * 100;
+          d.xx = d.x; //d.y*Math.sin(d.x!/(d.y!+100)*Math.PI);
+          d.yy = d.y; //d.y*Math.cos(d.x!/(d.y!+100)*Math.PI);
+        });
 
-      node.attr("cx", (d) => d.x!).attr("cy", (d) => d.y!);
-      simulation.alpha(0.1).restart();
-    });
+      node.attr("cx", (d) => d.xx).attr("cy", (d) => d.yy);
+      window.requestAnimationFrame(tick);
+    };
+    tick();
   });
 
   let [left, setLeft] = createSignal(400);
