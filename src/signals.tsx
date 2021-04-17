@@ -3,6 +3,7 @@ import { Component, createSignal, For, getOwner, runWithOwner } from "solid-js";
 import { writeSignal } from "solid-js/dev";
 import { valueToString } from "./utils";
 import Editor from "./editor";
+import { Root } from "./json-tree/Root";
 
 type Owner = NonNullable<ReturnType<typeof getOwner>>;
 type ComputationArr = NonNullable<Owner["owned"]>;
@@ -71,7 +72,10 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
                 >
                   {el.name}/{el.fName}
                 </div>
-                <Editor
+                <div>
+                  <Root value={el.value}></Root>
+                </div>
+                {/* <Editor
                   url={""}
                   disabled={false}
                   styles={{}}
@@ -85,7 +89,7 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
                     }
                   }}
                   value={valueToString(el.value)}
-                ></Editor>
+                ></Editor> */}
               </>
           }</For>
         </div>
