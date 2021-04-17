@@ -6,6 +6,7 @@ export const JSONValueNode: Component<{
   key: string;
   isParentExpanded: boolean;
   isParentArray: boolean;
+  isParentHTML: boolean;
   nodeType: string;
   valueGetter?: (value: any) => any;
   value: any;
@@ -19,6 +20,7 @@ export const JSONValueNode: Component<{
         colon={colon}
         isParentExpanded={props.isParentExpanded}
         isParentArray={props.isParentArray}
+        isParentHTML={props.isParentHTML}
       />
       <span class={props.nodeType}>{props.valueGetter ? props.valueGetter(props.value) : props.value}</span>
     </li>

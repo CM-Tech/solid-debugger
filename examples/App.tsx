@@ -35,6 +35,7 @@ function App() {
             notYourCHeese: [1, 2, 3],
             booolFoool: true,
             spaghetti: "code",
+            bob: document.body,
           }}
         />
       </div>

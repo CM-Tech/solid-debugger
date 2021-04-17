@@ -1,9 +1,10 @@
-import { Component, createEffect, createSignal, getOwner, onMount } from "solid-js";
+import { Component, createEffect, createSignal, createState, getOwner, onMount } from "solid-js";
 import { select, zoom, forceManyBody, forceSimulation, forceY, forceLink, forceX, BaseType } from "d3";
 import type { SimulationLinkDatum, SimulationNodeDatum, Selection, ForceLink } from "d3";
 import { valueToString } from "./utils";
 import { defaultTheme } from "./theme/defaultTheme";
 import { Root } from "./json-tree/Root";
+import objType from "./json-tree/objType";
 
 type Owner = NonNullable<ReturnType<typeof getOwner>>;
 type ComputationArr = NonNullable<Owner["owned"]>;
@@ -11,9 +12,29 @@ type Computation = ComputationArr[number];
 type Signal = NonNullable<Computation["sources"]>[number];
 type Item = (Computation | Signal) & SimulationNodeDatum;
 type Link = SimulationLinkDatum<Item>;
-
-export const NodeGraph: Component<{ root: Owner }> = (props) => {
+const Info: Component<{ x: keyof (Computation & Signal); active: any }> = (props) => {
+  return (
+    <div style={{ "display": "flex", "flex-wrap": "nowrap" }}>
+      <code
+        style={{
+          "color": "#d8dee9",
+          "flex-shrink": 0,
+          "flex-grow": 0,
+          "font-family": '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"',
+          "font-weight": "normal",
+          "font-size": " 14px",
+          "line-height": "19px",
+        }}
+      >
+        {props.x}:{" "}
+      </code>
+      <Root value={(props.active as any)[props.x]} />
+    </div>
+  );
+};
+export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
   const componentNodeColor = defaultTheme.colors.ansi.green;
+  const htmlNodeColor = defaultTheme.colors.ansi.yellow;
   const normalNodeColor = defaultTheme.colors.ansi.blue;
   let el!: SVGSVGElement;
   let [active, setActive] = createSignal(props.root as Computation | Signal, undefined, {
@@ -32,17 +53,20 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
 
     let myDepth = -1;
     if (x != props.root) {
-      let parents = [
+      let parentsO = [
         // ...((x as Computation).sources || []),
         ...[(x as Computation).owner as Item], // this could be undefined but we filter below
-      ]
-        .filter((x) => x != props.root && !!x)
-        .map((y) => {
-          links.push({ source: y, target: x });
-          return oneEl(y);
-        });
+      ].filter((x) => x != props.root && !!x);
+      let parents = parentsO.map((y) => {
+        links.push({ source: y, target: x });
+        return oneEl(y);
+      });
 
       myDepth = Math.max(...(parents.length ? parents : [-1])) + 1;
+      if (parentsO.length && parentsO[0].x && parentsO[0].y && (!x.x || !x.y)) {
+        x.x = parentsO[0].x;
+        x.y = parentsO[0].y + 100;
+      }
       nodes.push(x);
     }
     depth.set(x, myDepth);
@@ -75,7 +99,7 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
         "link",
         forceLink()
           .links(links)
-          .strength(2)
+          .strength(1)
           .distance((l) => (depth.get(l.target as Item)! - depth.get(l.source as Item)!) * 100)
       )
       .force(
@@ -86,7 +110,7 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
         "y",
         forceY()
           .y((d) => depth.get(d as Item)! * 100)
-          .strength(1)
+          .strength(2)
       )
       .alpha(0.1)
       .alphaDecay(0.01);
@@ -109,7 +133,13 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
     const createNode = <T extends BaseType>(x: Selection<T, Item, SVGGElement, unknown>) =>
       x
         .attr("r", 10)
-        .attr("fill", (d) => ((d as Computation).componentName ? componentNodeColor : normalNodeColor))
+        .attr("fill", (d) =>
+          (d as Computation).componentName
+            ? componentNodeColor
+            : d.value instanceof HTMLElement
+            ? htmlNodeColor
+            : normalNodeColor
+        )
         .style("cursor", "pointer")
         .on("click", (e, d) => {
           setActive(d);
@@ -152,7 +182,13 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
         .attr("fill", "white")
         .transition()
         .duration(400)
-        .attr("fill", (d) => ((d as Computation).componentName ? componentNodeColor : normalNodeColor));
+        .attr("fill", (d) =>
+          (d as Computation).componentName
+            ? componentNodeColor
+            : d.value instanceof HTMLElement
+            ? htmlNodeColor
+            : normalNodeColor
+        );
 
       link = link.data(links).join("line").attr("stroke", "#D8DEE9").attr("stroke-opacity", 1).attr("stroke-width", 1);
 
@@ -194,24 +230,28 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
     }
   });
 
-  const Info: Component<{ x: keyof (Computation & Signal) }> = (props) => (
-    <div style={{ "display": "flex", "flex-wrap": "nowrap" }}>
-      <code
-        style={{
-          "color": "#d8dee9",
-          "flex-shrink": 0,
-          "flex-grow": 0,
-          "font-family": '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"',
-          "font-weight": "normal",
-          "font-size": " 14px",
-          "line-height": "19px",
-        }}
-      >
-        {props.x}:{" "}
-      </code>
-      <Root value={(active() as any)[props.x]} />
-    </div>
-  );
+  createEffect(() => {
+    let upd = () => {
+      let valu = active().value;
+      // let t=tick();
+      if (valu instanceof HTMLElement) {
+        let r = valu.getBoundingClientRect();
+        let rect = { x: r.x, y: r.y, w: r.width, h: r.height };
+        console.log(rect);
+        props.setBbox(rect);
+      } else {
+        props.setBbox({ x: -10, y: -10, w: 0, h: 0 });
+      }
+    };
+    let ud2 = () => {
+      requestAnimationFrame(ud2);
+      upd();
+    };
+    ud2();
+    window.addEventListener("scroll", upd);
+
+    window.addEventListener("resize", upd);
+  });
 
   return (
     <div
@@ -229,10 +269,10 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
         onMouseDown={[setIsDragging, true]}
       ></div>
       <div style={{ overflow: "auto" }}>
-        <Info x="name" />
-        <Info x="componentName" />
-        <Info x="value" />
-        <Info x="fn" />
+        <Info x="name" active={active()} />
+        <Info x="componentName" active={active()} />
+        <Info x="value" active={active()} />
+        <Info x="fn" active={active()} />
       </div>
     </div>
   );

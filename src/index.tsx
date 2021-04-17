@@ -1,8 +1,59 @@
-import { Component, createEffect, createRoot, createSignal, getOwner, Show, JSX } from "solid-js";
+import {
+  Component,
+  createEffect,
+  createRoot,
+  createSignal,
+  getOwner,
+  Show,
+  JSX,
+  createState,
+  createMemo,
+} from "solid-js";
 import { NodeGraph } from "./graph";
 import { SignalList } from "./signals";
 import { defaultTheme } from "./theme/defaultTheme";
-
+const solidUpdateListeners: (() => void)[] = [window._$afterUpdate];
+let solidUpdateListenerCount = 1;
+window.addSolidUpdateListener = (listener: () => void) => {
+  let c = solidUpdateListenerCount++;
+  solidUpdateListeners[c] = listener;
+  return c;
+};
+window.removeSolidUpdateListener = (id: number) => {
+  delete solidUpdateListeners[id];
+};
+const newAfterUpdate = () => {
+  for (let k of Object.keys(solidUpdateListeners)) {
+    if (k !== "length") {
+      try {
+        solidUpdateListeners[(k as unknown) as keyof typeof solidUpdateListeners]();
+      } catch (e) {}
+    }
+  }
+};
+window._$afterUpdate = newAfterUpdate;
+Object.defineProperty(window, "_$afterUpdate", {
+  get: function () {
+    return newAfterUpdate;
+  },
+  set: function (val) {
+    return (solidUpdateListeners[0] = val);
+  },
+});
+const SelEl: Component<{ sty: any }> = (props) => {
+  return (
+    <div class="bad">
+      <style>{`.bad{
+  position:${props.sty.position};
+  width:${props.sty.width};
+  height:${props.sty.height};
+  border:${props.sty.border};
+  top:${props.sty.top};
+  left:${props.sty.left};
+}`}</style>
+    </div>
+  );
+};
 export const Debugger: Component<{}> = (props) => {
   let self = getOwner()!;
   let root = self;
@@ -13,6 +64,15 @@ export const Debugger: Component<{}> = (props) => {
   let children = props.children;
 
   return createRoot(() => {
+    const [bbox, setBbox] = createSignal({ x: -10, y: -10, w: 0, h: 0 });
+    const sty = createMemo(() => ({
+      position: "fixed",
+      top: bbox().y + "px",
+      left: bbox().x + "px",
+      width: bbox().w + "px",
+      height: bbox().h + "px",
+      border: `1px dotted ${defaultTheme.colors.ansi.blue}`,
+    }));
     let [open, setOpen] = createSignal(false);
     let [tab, setTab] = createSignal("graph");
 
@@ -56,6 +116,7 @@ export const Debugger: Component<{}> = (props) => {
 
     return (
       <>
+        <SelEl sty={sty()} />
         <div style={{ [open() ? "padding-bottom" : ""]: `${height()}px` }}>{children}</div>
         <footer>
           <Show when={!open()}>
@@ -85,6 +146,7 @@ export const Debugger: Component<{}> = (props) => {
               </svg>
             </button>
           </Show>
+
           <div
             style={{
               "font-size": "clamp(12px, 1.5vw, 14px)",
@@ -165,11 +227,13 @@ export const Debugger: Component<{}> = (props) => {
                 </button>
               </div>
             </div>
-            <Show when={tab() == "graph"}>
-              <NodeGraph root={root} />
-            </Show>
-            <Show when={tab() == "signals"}>
-              <SignalList root={comp} />
+            <Show when={open()}>
+              <Show when={tab() == "graph"}>
+                <NodeGraph root={root} setBbox={(v) => setBbox(v)} />
+              </Show>
+              <Show when={tab() == "signals"}>
+                <SignalList root={comp} />
+              </Show>
             </Show>
           </div>
         </footer>
