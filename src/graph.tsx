@@ -233,11 +233,9 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
   createEffect(() => {
     let upd = () => {
       let valu = active().value;
-      // let t=tick();
       if (valu instanceof HTMLElement) {
         let r = valu.getBoundingClientRect();
         let rect = { x: r.x, y: r.y, w: r.width, h: r.height };
-        console.log(rect);
         props.setBbox(rect);
       } else {
         props.setBbox({ x: -10, y: -10, w: 0, h: 0 });
