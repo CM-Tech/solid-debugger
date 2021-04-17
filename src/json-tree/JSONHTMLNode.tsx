@@ -30,12 +30,23 @@ export const JSONHTMLNode: Component<{
       bracketOpen={
         <>
           {"<"}
-          {props.value.tagName.toLowerCase()}{" "}
+          {props.value.tagName.toLowerCase()}
+          {[...props.value.attributes].length > 0 ? " " : ""}
           <For each={[...props.value.attributes]}>
             {(a) => (
               <>
                 {" "}
-                <span class="Number">{a.name}</span>=<span class="String">{JSON.stringify(a.value)}</span>
+                <span class="Number">{a.name}</span>
+                {a.value !== "" ? (
+                  <>
+                    =
+                    <span class="String" contentEditable>
+                      {JSON.stringify(a.value)}
+                    </span>
+                  </>
+                ) : (
+                  ""
+                )}
               </>
             )}
           </For>

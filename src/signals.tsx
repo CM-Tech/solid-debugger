@@ -1,7 +1,7 @@
 import { Component, createSignal, For, getOwner } from "solid-js";
 import Editor from "./editor";
 import { Root } from "./json-tree/Root";
-import { writeSignal } from "solid-js/dev";
+import { defaultTheme } from "./theme/defaultTheme";
 
 type Owner = NonNullable<ReturnType<typeof getOwner>>;
 type ComputationArr = NonNullable<Owner["owned"]>;
@@ -60,16 +60,16 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
                   style={{
                     /*width: 2rem; */
                     "min-height": "32px",
-                    "background": "rgb(0, 107, 255)",
+                    "background": `${defaultTheme.colors.backgroundColor}`,
                     "display": "flex",
                     "align-items": "center",
                     "justify-content": "center",
                     "font-weight": "bold",
-                    "color": "white",
-                    "text-shadow": "black 0px 0px 10px",
+                    "color": `${defaultTheme.colors.ansi.blue}`,
+                    // "text-shadow": "black 0px 0px 10px",
                   }}
                 >
-                  {el.name}/{el.fName}
+                  {el.name}
                 </div>
                 <div>
                   <Root value={el.value}></Root>
