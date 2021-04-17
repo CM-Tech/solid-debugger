@@ -11,7 +11,7 @@ function Counter() {
 }
 
 function App() {
-  const [visible, setVisible] = createSignal(false, true, {name:"hi cole"});
+  const [visible, setVisible] = createSignal(false, true, { name: "hi cole" });
   const [state, setState] = createState({
     a: {
       b: 1,
@@ -19,8 +19,8 @@ function App() {
     },
     d: {
       e: 1,
-      f: 1
-    }
+      f: 1,
+    },
   });
   // const b=createEffect(()=>console.log(q()))
   return (
@@ -30,7 +30,14 @@ function App() {
         <Show when={visible()}>
           <Counter />
         </Show>
-        <Root value={{notYourCHeese:[1,2,3],booolFoool:true,spaghetti:"code", asdf: [...document.querySelectorAll("body")]}}></Root>
+        <Root
+          value={{
+            notYourCHeese: [1, 2, 3],
+            booolFoool: true,
+            spaghetti: "code",
+            asdf: [...document.querySelectorAll("body")],
+          }}
+        ></Root>
       </div>
     </Debugger>
   );

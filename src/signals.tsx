@@ -54,8 +54,8 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
     <div style="position: relative">
       <div style="overflow: auto scroll; max-height:100%;">
         <div style="display :grid;grid-template-columns: 1fr 3fr;">
-          <For each={signalsS()}>{
-            (el) =>
+          <For each={signalsS()}>
+            {(el) => (
               <>
                 <div
                   style={`
@@ -87,7 +87,8 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
                   value={valueToString(el.value)}
                 ></Editor>
               </>
-          }</For>
+            )}
+          </For>
         </div>
       </div>
     </div>

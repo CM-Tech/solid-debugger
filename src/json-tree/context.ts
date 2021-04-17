@@ -1,3 +1,3 @@
 import { createContext } from "solid-js";
 
-export const contextKey= createContext<{colon?:string}>({});
+export const contextKey = createContext<{ colon?: string }>({});
