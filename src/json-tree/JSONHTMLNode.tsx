@@ -39,10 +39,7 @@ export const JSONHTMLNode: Component<{
                 <span class="Number">{a.name}</span>
                 {a.value !== "" ? (
                   <>
-                    =
-                    <span class="String" contentEditable>
-                      {JSON.stringify(a.value)}
-                    </span>
+                    =<span class="String">{JSON.stringify(a.value)}</span>
                   </>
                 ) : (
                   ""
