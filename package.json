@@ -15,16 +15,18 @@
   "scripts": {
     "build": "rollup -c",
     "format": "prettier -w . --print-width 120",
-    "dev": "vite"
+    "dev": "vite",
+    "postinstall": "patch-package"
   },
   "author": "modderme123",
   "license": "MIT",
   "devDependencies": {
     "@types/d3": "^6.3.0",
+    "patch-package": "^6.4.7",
     "prettier": "^2.2.1",
     "rollup": "^2.45.2",
     "rollup-preset-solid": "^0.3.0",
-    "solid-js": "^0.26.0"
+    "solid-js": "^0.26.1"
   },
   "dependencies": {
     "d3": "^6.7.0",
