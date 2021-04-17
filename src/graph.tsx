@@ -1,8 +1,7 @@
-import { Component, createEffect, createRoot, createSignal, For, getOwner, onMount, Show } from "solid-js";
+import { Component, createEffect, createSignal, getOwner, onMount } from "solid-js";
 import { select, zoom, forceManyBody, forceSimulation, forceY, forceLink, forceX, BaseType } from "d3";
 import type { SimulationLinkDatum, SimulationNodeDatum, Selection, ForceLink } from "d3";
 import { valueToString } from "./utils";
-import Editor from "./editor";
 import { defaultTheme } from "./theme/defaultTheme";
 
 type Owner = NonNullable<ReturnType<typeof getOwner>>;
@@ -198,22 +197,32 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
 
   return (
     <div
-      style={`display:grid; width:100%;height:100%;grid-template-columns: 1fr 2px ${left()}px;box-shadow:rgba(0, 0, 0, 0.4) 0 6px 6px -6px inset;`}
+      style={{
+        "display": "grid",
+        "width": "100%",
+        "height": "100%",
+        "grid-template-columns": `1fr 2px ${left()}px`,
+        "box-shadow": "rgba(0, 0, 0, 0.4) 0 6px 6px -6px inset",
+      }}
     >
-      <svg ref={el} style={`box-shadow:rgba(0, 0, 0, 0.4) -6px 0 6px -6px inset;`}></svg>
+      <svg ref={el} style={{ "box-shadow": "rgba(0, 0, 0, 0.4) -6px 0 6px -6px inset" }}></svg>
       <div
-        style="border-left: 1px solid rgb(63, 78, 96); cursor: col-resize;"
+        style={{ "border-left": "1px solid rgb(63, 78, 96)", "cursor": "col-resize" }}
         onMouseDown={[setIsDragging, true]}
       ></div>
-      <div style="overflow: auto;">
+      <div style={{ overflow: "auto" }}>
         {["name", "componentName", "value", "fn"].map((x) => (
-          <div style={`display:flex;flex-wrap:nowrap;`}>
+          <div style={{ "display": "flex", "flex-wrap": "nowrap" }}>
             <code
-              style={`color: #d8dee9; flex-shrink:0; flex-grow:0;font-family: "Droid Sans Mono", monospace, monospace, "Droid Sans Fallback";
-    font-weight: normal;
-    font-size: 14px;
-    line-height:19px;
-`}
+              style={{
+                "color": "#d8dee9",
+                "flex-shrink": 0,
+                "flex-grow": 0,
+                "font-family": '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"',
+                "font-weight": "normal",
+                "font-size": " 14px",
+                "line-height": "19px",
+              }}
             >
               {x}:
             </code>{" "}

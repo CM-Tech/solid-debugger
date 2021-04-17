@@ -23,7 +23,7 @@ export const JSONHTMLNode: Component<{
       keys={keys()}
       previewKeys={keys()}
       previewCount={0}
-      getValue={(k: string) => props.value.children[k]}
+      getValue={(k: number) => props.value.children[k]}
       colon={""}
       label={``}
       expandable={props.value.children.length > 0}

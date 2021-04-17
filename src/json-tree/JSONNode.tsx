@@ -64,13 +64,10 @@ export const JSONNode: Component<{
       case "Function":
       case "Symbol":
         return (raw: Symbol) => raw.toString();
+      case "HTMLElement":
+        return (raw: HTMLElement) => (raw.innerHTML ? raw.outerHTML.replace(raw.innerHTML, "...") : raw.outerHTML);
       default:
-        return (raw) => {
-          if (raw instanceof HTMLElement)
-            return raw.innerHTML ? raw.outerHTML.replace(raw.innerHTML, "...") : raw.outerHTML;
-
-          return `<${nodeType}>`;
-        };
+        return () => `<${nodeType}>`;
     }
   }
 

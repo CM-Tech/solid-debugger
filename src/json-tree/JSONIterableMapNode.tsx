@@ -1,8 +1,16 @@
 import { JSONNested } from "./JSONNested";
 import MapEntry from "./utils/MapEntry";
-import { Component, createMemo, createSignal } from "solid-js";
+import { Component, createMemo } from "solid-js";
 
-export const JSONIterableMapNode: Component<any> = (props) => {
+export const JSONIterableMapNode: Component<{
+  value: any;
+  isParentExpanded: boolean;
+  isParentArray: boolean;
+  key: any;
+  getKey: (v: any) => any;
+  getValue: (v: any) => any;
+  nodeType: string;
+}> = (props) => {
   const keys = createMemo(() => {
     let result = [];
     let i = 0;

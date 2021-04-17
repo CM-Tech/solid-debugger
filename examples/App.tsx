@@ -37,7 +37,7 @@ function App() {
             spaghetti: "code",
             asdf: [...document.querySelectorAll("body")],
           }}
-        ></Root>
+        />
       </div>
     </Debugger>
   );

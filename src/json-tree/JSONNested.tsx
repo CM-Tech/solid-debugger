@@ -1,7 +1,7 @@
 import { JSONArrow } from "./JSONArrow";
 import { JSONNode } from "./JSONNode";
 import { JSONKey } from "./JSONKey";
-import { Show, Component, For, createMemo, createSignal, createEffect } from "solid-js";
+import { Show, Component, For, createMemo, createSignal, createEffect, JSX } from "solid-js";
 
 export const JSONNested: Component<{
   isParentHTML?: boolean;

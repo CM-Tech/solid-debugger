@@ -14,7 +14,7 @@
   "types": "./dist/types/index.d.ts",
   "scripts": {
     "build": "rollup -c",
-    "format": "prettier -w . --print-width 120",
+    "format": "prettier -w . --print-width 120 --quote-props consistent",
     "dev": "vite",
     "postinstall": "patch-package"
   },
@@ -30,7 +30,6 @@
   },
   "dependencies": {
     "d3": "^6.7.0",
-    "monaco-editor": "^0.23.0",
     "vite": "^2.1.5",
     "vite-plugin-solid": "^1.5.1"
   },

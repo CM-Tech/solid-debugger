@@ -3,7 +3,7 @@ import { Component } from "solid-js";
 import { contextKey } from "./context";
 import "./tmp.css";
 
-export const Root: Component<any> = (props) => {
+export const Root: Component<{ key?: string; value: object; onChange?: (v: object) => void }> = (props) => {
   return (
     <ul style={{ "font-family": "'Nausti Sans',monospace", "list-style": "none" }}>
       <contextKey.Provider value={{}}>

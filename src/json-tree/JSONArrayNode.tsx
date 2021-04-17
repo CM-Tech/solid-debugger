@@ -1,7 +1,13 @@
-import { Component, createMemo, createSignal } from "solid-js";
+import { Component, createMemo } from "solid-js";
 import { JSONNested } from "./JSONNested";
 
-export const JSONArrayNode: Component<any> = (props) => {
+export const JSONArrayNode: Component<{
+  value: any[];
+  key: any;
+  expanded?: boolean;
+  isParentExpanded: boolean;
+  isParentArray: boolean;
+}> = (props) => {
   const filteredKey = new Set(["length"]);
 
   let keys = createMemo(() => Object.getOwnPropertyNames(props.value));

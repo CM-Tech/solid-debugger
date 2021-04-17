@@ -1,4 +1,4 @@
-import { Component, createEffect, createRoot, createSignal, getOwner, Show } from "solid-js";
+import { Component, createEffect, createRoot, createSignal, getOwner, Show, JSX } from "solid-js";
 import { NodeGraph } from "./graph";
 import { SignalList } from "./signals";
 import { defaultTheme } from "./theme/defaultTheme";
@@ -41,30 +41,33 @@ export const Debugger: Component<{}> = (props) => {
       }
     });
 
-    const buttonStyles = `
-    display: inline-flex;
-    box-sizing: border-box;
-    max-width: 100%;
-    border:none;
-    color: ${defaultTheme.colors.foregroundColor};
-    min-width: 0px;
-    min-height: 0px;
-    flex-direction: column;
-    padding: 12px 24px;
-    border-radius: 0px;`;
+    const buttonStyles: JSX.CSSProperties = {
+      "display": "inline-flex",
+      "box-sizing": "border-box",
+      "max-width": "100%",
+      "border": "none",
+      "color": defaultTheme.colors.foregroundColor,
+      "min-width": "0px",
+      "min-height": "0px",
+      "flex-direction": "column",
+      "padding": "12px 24px",
+      "border-radius": "0px",
+    };
 
     return (
       <>
-        <div style={open() ? `padding-bottom: ${height()}px` : ""}>{children}</div>
+        <div style={{ [open() ? "padding-bottom" : ""]: `${height()}px` }}>{children}</div>
         <footer>
           <Show when={!open()}>
             <button
-              style="position: fixed;
-                  bottom: 10px;
-                  left: 10px;
-                  background: none;
-                  border: none;
-                  cursor: pointer;"
+              style={{
+                position: "fixed",
+                bottom: "10px",
+                left: "10px",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
               onClick={() => setOpen(true)}
             >
               {/* prettier-ignore */}
@@ -83,71 +86,79 @@ export const Debugger: Component<{}> = (props) => {
             </button>
           </Show>
           <div
-            style={`
-                font-size: clamp(12px, 1.5vw, 14px);
-                font-family: sans-serif;
-                display: grid;
-                grid-template-rows: auto minmax(0, 1fr);
-                grid-template-columns: 1fr;
-                background-color: ${defaultTheme.colors.backgroundColor};
-                color: white;
-                position: fixed;
-                bottom: 0px;
-                right: 0px;
-                z-index: 99999;
-                width: 100%;
-                height: ${height()}px;
-                max-height: 90%;
-                box-shadow: rgba(0, 0, 0, 0.3) 0px 0px 20px;
-                border-top: 1px solid rgb(63, 78, 96);
-                transform-origin: center top;
-                transition: transform 0.2s ease 0s, opacity 0.2s ease 0s;
-                opacity: ${open() ? 1 : 0};
-                pointer-events: ${open() ? "all" : "none"};
-                transform: translateY(${open() ? 0 : 15}px)
-                           scale(${open() ? 1 : 1.02});`}
+            style={{
+              "font-size": "clamp(12px, 1.5vw, 14px)",
+              "font-family": "sans-serif",
+              "display": "grid",
+              "grid-template-rows": "auto minmax(0, 1fr)",
+              "grid-template-columns": "1fr",
+              "background-color": defaultTheme.colors.backgroundColor,
+              "color": "white",
+              "position": "fixed",
+              "bottom": "0px",
+              "right": "0px",
+              "z-index": 99999,
+              "width": "100%",
+              "height": `${height()}px`,
+              "max-height": "90%",
+              "box-shadow": "rgba(0, 0, 0, 0.3) 0px 0px 20px",
+              "border-top": "1px solid rgb(63, 78, 96)",
+              "transform-origin": "center top",
+              "transition": "transform 0.2s ease 0s, opacity 0.2s ease 0s",
+              "opacity": open() ? 1 : 0,
+              "pointer-events": open() ? "all" : "none",
+              "transform": `translateY(${open() ? 0 : 15}px) scale(${open() ? 1 : 1.02})`,
+            }}
           >
             <button
-              style="appearance: none;
-              font-size: 0.9em;
-              font-weight: bold;
-              background: rgb(63, 78, 96);
-              border: 0px;
-              border-radius: 0.3em;
-              color: white;
-              padding: 0.5em;
-              cursor: pointer;
-              position: fixed;
-              z-index: 99999;
-              margin: 0.5rem;
-              bottom: 0px;
-              left: 0px;"
+              style={{
+                "appearance": "none",
+                "font-size": "0.9em",
+                "font-weight": "bold",
+                "background": "rgb(63, 78, 96)",
+                "border": "0px",
+                "border-radius": "0.3em",
+                "color": "white",
+                "padding": "0.5em",
+                "cursor": "pointer",
+                "position": "fixed",
+                "z-index": 99999,
+                "margin": "0.5rem",
+                "bottom": "0px",
+                "left": "0px,",
+              }}
               onclick={() => setOpen(false)}
             >
               Close
             </button>
             <div
-              style={`padding: 0.5rem;
-              background: ${defaultTheme.colors.backgroundColor};
-              display: flex;
-              justify-content: space-between;
-              align-items: center;`}
+              style={{
+                "padding": "0.5rem",
+                "background": defaultTheme.colors.backgroundColor,
+                "display": "flex",
+                "justify-content": "space-between",
+                "align-items": "center",
+              }}
               onMouseDown={[setIsDragging, true]}
             >
-              <div style="font-size: 1.2rem; font-weight: bold;">Signals</div>
+              <div style={{ "font-size": "1.2rem", "font-weight": "bold" }}>Signals</div>
               <div>
                 <button
-                  style={`${buttonStyles}
-                    background: ${defaultTheme.colors.ansi.blue}; 
-                    opacity: ${tab() == "signals" ? 1 : 0.3};`}
+                  style={{
+                    ...buttonStyles,
+                    background: defaultTheme.colors.ansi.blue,
+                    opacity: tab() == "signals" ? 1 : 0.3,
+                  }}
                   onClick={() => setTab("signals")}
                 >
                   Signals
                 </button>
                 <button
-                  style={`${buttonStyles} 
-                    background: ${defaultTheme.colors.ansi.green}; 
-                    opacity: ${tab() == "graph" ? 1 : 0.3};`}
+                  style={{
+                    ...buttonStyles,
+                    background: defaultTheme.colors.ansi.green,
+                    opacity: tab() == "graph" ? 1 : 0.3,
+                  }}
                   onClick={() => setTab("graph")}
                 >
                   Graph

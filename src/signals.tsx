@@ -1,8 +1,6 @@
-import { Component, createSignal, For, getOwner, runWithOwner } from "solid-js";
-
-import { writeSignal } from "solid-js/dev";
-import { valueToString } from "./utils";
+import { Component, createSignal, For, getOwner } from "solid-js";
 import Editor from "./editor";
+import { writeSignal } from "solid-js/dev";
 
 type Owner = NonNullable<ReturnType<typeof getOwner>>;
 type ComputationArr = NonNullable<Owner["owned"]>;
@@ -51,40 +49,33 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
   };
 
   return (
-    <div style="position: relative">
-      <div style="overflow: auto scroll; max-height:100%;">
-        <div style="display :grid;grid-template-columns: 1fr 3fr;">
+    <div style={{ position: "relative" }}>
+      <div style={{ "overflow": "scroll", "max-height": "100%" }}>
+        <div style={{ "display": "grid", "grid-template-columns": "1fr 3fr" }}>
           <For each={signalsS()}>
             {(el) => (
               <>
                 <div
-                  style={`
-           /*width: 2rem; */
-           min-height: 32px;
-           background: rgb(0, 107, 255);
-           display: flex; 
-           align-items: center; 
-           justify-content: center; 
-           font-weight: bold; 
-           color: white;
-           text-shadow: black 0px 0px 10px;`}
+                  style={{
+                    /*width: 2rem; */
+                    "min-height": "32px",
+                    "background": "rgb(0, 107, 255)",
+                    "display": "flex",
+                    "align-items": "center",
+                    "justify-content": "center",
+                    "font-weight": "bold",
+                    "color": "white",
+                    "text-shadow": "black 0px 0px 10px",
+                  }}
                 >
                   {el.name}/{el.fName}
                 </div>
                 <Editor
-                  url={""}
-                  disabled={false}
-                  styles={{}}
-                  style={`display:grid;flex-grow:1;min-height:19px`}
+                  style={{ "display": "grid", "flex-grow": 1, "min-height": "19px" }}
                   onDocChange={(v) => {
-                    try {
-                      let val = eval(v);
-                      writeSignal.bind(el)(val);
-                    } catch {
-                      console.log("FAIL", el, v);
-                    }
+                    writeSignal.bind(el)(v);
                   }}
-                  value={valueToString(el.value)}
+                  value={el.value}
                 ></Editor>
               </>
             )}
