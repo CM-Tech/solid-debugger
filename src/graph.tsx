@@ -1,9 +1,9 @@
-import { Component, createEffect, createRoot, createSignal, For, getOwner, onMount, Show } from "solid-js";
+import { Component, createEffect, createSignal, getOwner, onMount } from "solid-js";
 import { select, zoom, forceManyBody, forceSimulation, forceY, forceLink, forceX, BaseType } from "d3";
 import type { SimulationLinkDatum, SimulationNodeDatum, Selection, ForceLink } from "d3";
 import { valueToString } from "./utils";
-import Editor from "./editor";
 import { defaultTheme } from "./theme/defaultTheme";
+import { Root } from "./json-tree/Root";
 
 type Owner = NonNullable<ReturnType<typeof getOwner>>;
 type ComputationArr = NonNullable<Owner["owned"]>;
@@ -13,9 +13,8 @@ type Item = (Computation | Signal) & SimulationNodeDatum;
 type Link = SimulationLinkDatum<Item>;
 
 export const NodeGraph: Component<{ root: Owner }> = (props) => {
-
-const componentNodeColor=defaultTheme.colors.ansi.green;
-const normalNodeColor=defaultTheme.colors.ansi.blue;
+  const componentNodeColor = defaultTheme.colors.ansi.green;
+  const normalNodeColor = defaultTheme.colors.ansi.blue;
   let el!: SVGSVGElement;
   let [active, setActive] = createSignal(props.root as Computation | Signal, undefined, {
     name: "analyze-node",
@@ -101,13 +100,11 @@ const normalNodeColor=defaultTheme.colors.ansi.blue;
       .attr("stroke-opacity", 1)
       .attr("stroke-width", 1);
 
-    const zoome =  zoom<SVGSVGElement, unknown>()
-    .scaleExtent([0.1, 1])
-    .on("zoom", ({ transform }) => g.attr("transform", transform))
-    zoome.translateBy(svg,(window.innerWidth - 2 - left())/2, 0)
-    svg.call(
-     zoome
-    );
+    const zoome = zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.1, 1])
+      .on("zoom", ({ transform }) => g.attr("transform", transform));
+    zoome.translateBy(svg, (window.innerWidth - 2 - left()) / 2, 0);
+    svg.call(zoome);
 
     const createNode = <T extends BaseType>(x: Selection<T, Item, SVGGElement, unknown>) =>
       x
@@ -146,8 +143,6 @@ const normalNodeColor=defaultTheme.colors.ansi.blue;
       queue = [props.root as Item];
       while (queue.length) oneEl(queue.shift()!);
 
-      if (updated.has(active())) setActive(active());
-
       node = node.data(nodes).join((enter) => enter.append("circle").call(createNode));
 
       node
@@ -167,12 +162,6 @@ const normalNodeColor=defaultTheme.colors.ansi.blue;
     };
 
     simulation.on("tick", () => {
-      // var kx = .4 * 0.1, ky = 1.4 * 0.1;
-      // links.forEach(function(d, i) {
-      //   d.target.x += (d.source.x - d.target.x) * kx;
-      //   d.target.y += (d.source.y + 100 - d.target.y) * ky;
-      // });
-
       link
         .attr("x1", (d) => (d.source as Item).x!)
         .attr("y1", (d) => (d.source as Item).y!)
@@ -205,23 +194,45 @@ const normalNodeColor=defaultTheme.colors.ansi.blue;
     }
   });
 
+  const Info: Component<{ x: keyof (Computation & Signal) }> = (props) => (
+    <div style={{ "display": "flex", "flex-wrap": "nowrap" }}>
+      <code
+        style={{
+          "color": "#d8dee9",
+          "flex-shrink": 0,
+          "flex-grow": 0,
+          "font-family": '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"',
+          "font-weight": "normal",
+          "font-size": " 14px",
+          "line-height": "19px",
+        }}
+      >
+        {props.x}:{" "}
+      </code>
+      <Root value={(active() as any)[props.x]} />
+    </div>
+  );
+
   return (
-    <div style={`display:grid; width:100%;height:100%;grid-template-columns: 1fr 2px ${left()}px;box-shadow:rgba(0, 0, 0, 0.4) 0 6px 6px -6px inset;`}>
-      <svg ref={el} style={`box-shadow:rgba(0, 0, 0, 0.4) -6px 0 6px -6px inset;`}></svg>
+    <div
+      style={{
+        "display": "grid",
+        "width": "100%",
+        "height": "100%",
+        "grid-template-columns": `1fr 2px ${left()}px`,
+        "box-shadow": "rgba(0, 0, 0, 0.4) 0 6px 6px -6px inset",
+      }}
+    >
+      <svg ref={el} style={{ "box-shadow": "rgba(0, 0, 0, 0.4) -6px 0 6px -6px inset" }}></svg>
       <div
-        style="border-left: 1px solid rgb(63, 78, 96); cursor: col-resize;"
+        style={{ "border-left": "1px solid rgb(63, 78, 96)", "cursor": "col-resize" }}
         onMouseDown={[setIsDragging, true]}
       ></div>
-      <div style="overflow: auto;">
-        {["name","componentName","value","fn"].map(x=>
-        <div style={`display:flex;flex-wrap:nowrap;`}>
-          <code style={`color: #d8dee9; flex-shrink:0; flex-grow:0;font-family: "Droid Sans Mono", monospace, monospace, "Droid Sans Fallback";
-    font-weight: normal;
-    font-size: 14px;
-    line-height:19px;
-`}>{x}:</code> {valueToString((active() as any)[x])}
-        </div>)
-        }
+      <div style={{ overflow: "auto" }}>
+        <Info x="name" />
+        <Info x="componentName" />
+        <Info x="value" />
+        <Info x="fn" />
       </div>
     </div>
   );
