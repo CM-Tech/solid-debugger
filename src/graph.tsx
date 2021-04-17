@@ -3,6 +3,7 @@ import { select, zoom, forceManyBody, forceSimulation, forceY, forceLink, forceX
 import type { SimulationLinkDatum, SimulationNodeDatum, Selection, ForceLink } from "d3";
 import { valueToString } from "./utils";
 import { defaultTheme } from "./theme/defaultTheme";
+import { Root } from "./json-tree/Root";
 
 type Owner = NonNullable<ReturnType<typeof getOwner>>;
 type ComputationArr = NonNullable<Owner["owned"]>;
@@ -142,8 +143,6 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
       queue = [props.root as Item];
       while (queue.length) oneEl(queue.shift()!);
 
-      if (updated.has(active())) setActive(active());
-
       node = node.data(nodes).join((enter) => enter.append("circle").call(createNode));
 
       node
@@ -195,6 +194,25 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
     }
   });
 
+  const Info: Component<{ x: keyof (Computation & Signal) }> = (props) => (
+    <div style={{ "display": "flex", "flex-wrap": "nowrap" }}>
+      <code
+        style={{
+          "color": "#d8dee9",
+          "flex-shrink": 0,
+          "flex-grow": 0,
+          "font-family": '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"',
+          "font-weight": "normal",
+          "font-size": " 14px",
+          "line-height": "19px",
+        }}
+      >
+        {props.x}:{" "}
+      </code>
+      <Root value={(active() as any)[props.x]} />
+    </div>
+  );
+
   return (
     <div
       style={{
@@ -211,24 +229,10 @@ export const NodeGraph: Component<{ root: Owner }> = (props) => {
         onMouseDown={[setIsDragging, true]}
       ></div>
       <div style={{ overflow: "auto" }}>
-        {["name", "componentName", "value", "fn"].map((x) => (
-          <div style={{ "display": "flex", "flex-wrap": "nowrap" }}>
-            <code
-              style={{
-                "color": "#d8dee9",
-                "flex-shrink": 0,
-                "flex-grow": 0,
-                "font-family": '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"',
-                "font-weight": "normal",
-                "font-size": " 14px",
-                "line-height": "19px",
-              }}
-            >
-              {x}:
-            </code>{" "}
-            {valueToString((active() as any)[x])}
-          </div>
-        ))}
+        <Info x="name" />
+        <Info x="componentName" />
+        <Info x="value" />
+        <Info x="fn" />
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ import { JSONMapEntryNode } from "./JSONMapEntryNode";
 import { JSONValueNode } from "./JSONValueNode";
 import { ErrorNode } from "./ErrorNode";
 import objType from "./objType";
-import { Component } from "solid-js";
+import { Component, createMemo } from "solid-js";
 import { JSONObjectNode } from "./JSONObjectNode";
 export const JSONNode: Component<{
   value: any;
@@ -15,9 +15,9 @@ export const JSONNode: Component<{
   isParentArray?: boolean;
   isParentHTML?: boolean;
 }> = (props) => {
-  const nodeType = objType(props.value);
-  const ComponentType = getComponent(nodeType);
-  const valueGetter = getValueGetter(nodeType);
+  const nodeType = createMemo(() => objType(props.value));
+  const ComponentType = getComponent(nodeType());
+  const valueGetter = () => getValueGetter(nodeType());
 
   function getComponent(nodeType: string): Component<any> {
     switch (nodeType) {
@@ -78,8 +78,8 @@ export const JSONNode: Component<{
       isParentExpanded={props.isParentExpanded}
       isParentArray={props.isParentArray}
       isParentHTML={props.isParentHTML}
-      nodeType={nodeType}
-      valueGetter={valueGetter}
+      nodeType={nodeType()}
+      valueGetter={valueGetter()}
     />
   );
 };

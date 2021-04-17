@@ -35,7 +35,6 @@ function App() {
             notYourCHeese: [1, 2, 3],
             booolFoool: true,
             spaghetti: "code",
-            asdf: [...document.querySelectorAll("body")],
           }}
         />
       </div>
