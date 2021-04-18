@@ -1,13 +1,4 @@
-import {
-  Component,
-  createEffect,
-  createRoot,
-  createSignal,
-  getOwner,
-  Show,
-  JSX,
-  createMemo,
-} from "solid-js";
+import { Component, createEffect, createRoot, createSignal, getOwner, Show, JSX, createMemo } from "solid-js";
 import { NodeGraph } from "./graph";
 import { SignalList } from "./signals";
 import { defaultTheme } from "./theme/defaultTheme";
@@ -104,15 +95,16 @@ export const Debugger: Component<{}> = (props) => {
 
     const buttonStyles: JSX.CSSProperties = {
       "display": "inline-flex",
-      "box-sizing": "border-box",
       "max-width": "100%",
       "border": "none",
-      "color": defaultTheme.colors.foregroundColor,
+      "color": defaultTheme.colors.backgroundColor,
       "min-width": "0px",
       "min-height": "0px",
       "flex-direction": "column",
       "padding": "12px 24px",
       "border-radius": "0px",
+      "box-sizing": "border-box",
+      "height": "100%",
     };
 
     return (
@@ -209,8 +201,10 @@ export const Debugger: Component<{}> = (props) => {
                 <button
                   style={{
                     ...buttonStyles,
-                    background: defaultTheme.colors.ansi.blue,
-                    opacity: tab() == "signals" ? 1 : 0.3,
+                    color: tab() !== "signals" ? defaultTheme.colors.ansi.blue : defaultTheme.colors.backgroundColor,
+                    background:
+                      tab() === "signals" ? defaultTheme.colors.ansi.blue : defaultTheme.colors.backgroundColor,
+                    border: `2px solid ${defaultTheme.colors.ansi.blue}`,
                   }}
                   onClick={() => setTab("signals")}
                 >
@@ -219,8 +213,10 @@ export const Debugger: Component<{}> = (props) => {
                 <button
                   style={{
                     ...buttonStyles,
-                    background: defaultTheme.colors.ansi.green,
-                    opacity: tab() == "graph" ? 1 : 0.3,
+                    color: tab() !== "graph" ? defaultTheme.colors.ansi.green : defaultTheme.colors.backgroundColor,
+                    background:
+                      tab() === "graph" ? defaultTheme.colors.ansi.green : defaultTheme.colors.backgroundColor,
+                    border: `2px solid ${defaultTheme.colors.ansi.green}`,
                   }}
                   onClick={() => setTab("graph")}
                 >
@@ -230,7 +226,7 @@ export const Debugger: Component<{}> = (props) => {
             </div>
             <Show when={open()}>
               <Show when={tab() == "graph"}>
-                <NodeGraph root={root} setBbox={(v) => setBbox(v)} />
+                <NodeGraph root={root} setBbox={setBbox} />
               </Show>
               <Show when={tab() == "signals"}>
                 <SignalList root={comp} />

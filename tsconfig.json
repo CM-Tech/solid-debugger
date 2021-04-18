@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "skipDefaultLibCheck": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "target": "ESNext",

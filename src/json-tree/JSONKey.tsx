@@ -5,7 +5,7 @@ export const JSONKey: Component<{
   colon?: string;
   isParentExpanded: boolean;
   isParentArray?: boolean;
-  isParentHTML: boolean;
+  isParentHTML?: boolean;
   onClick?: () => void;
 }> = (props) => {
   const showKey = createMemo(
