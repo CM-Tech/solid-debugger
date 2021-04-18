@@ -1,5 +1,4 @@
 import { Component, createSignal, For, getOwner } from "solid-js";
-import Editor from "./editor";
 import { Root } from "./json-tree/Root";
 import { defaultTheme } from "./theme/defaultTheme";
 

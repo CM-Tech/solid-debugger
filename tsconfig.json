@@ -5,6 +5,8 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "node",
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   }
 }

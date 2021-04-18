@@ -8,7 +8,7 @@ type Owner = NonNullable<ReturnType<typeof getOwner>>;
 type ComputationArr = NonNullable<Owner["owned"]>;
 type Computation = ComputationArr[number];
 type Signal = NonNullable<Computation["sources"]>[number];
-type Item = (Computation | Signal) & { x: number; y: number; countdown: number };
+type Item = (Computation | Signal) & { x: number; x01?:number;y01?:number;y: number; countdown: number };
 
 const Info: Component<{ x: keyof (Computation & Signal); active: any }> = (props) => {
   return (
@@ -86,7 +86,7 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
         setActive(props.root as Item);
       });
 
-    var w = window.innerWidth - left() - 2,
+    let w = window.innerWidth - left() - 2,
       h = 500,
       root = d3.hierarchy({ id: "root", name: "root" }),
       tree = d3.tree().size([w - 20, h - 20]),
@@ -98,18 +98,17 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
 
     setInterval(update, duration);
 
-    var vis = svg.append("svg:g");
+    let vis = svg.append("g");
     const zoome = zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.1, 1])
       .on("zoom", ({ transform }) => vis.attr("transform", transform));
     svg.call(zoome);
 
-    vis
+    let node = vis
       .selectAll("circle")
       .data(tree(root))
       .enter()
-      .append("svg:circle")
-      .attr("class", "node")
+      .append("circle")
       .attr("r", 3.5)
       .attr("cx", x)
       .attr("cy", y);
@@ -126,8 +125,8 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
       tree = tree.size([w, h]);
 
       // Compute the new tree layout. We'll stash the old layout in the data.
-      var treeData = tree(root);
-      var nodes = treeData,
+      let treeData = tree(root);
+      let nodes = treeData,
         links = treeData.links();
       let qq = treeData.descendants();
       data = data.filter((x) => !!qq.find((d) => x.data.id === d.data.id));
@@ -165,19 +164,18 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
         no.data = dt.data;
       }
       // Update the links…
-      var link = vis.selectAll("path.link").data(links, linkId);
+      let link = vis.selectAll("path").data(links, linkId);
 
       // Enter any new links at the parent's previous position.
       link
         .enter()
-        .insert("svg:path")
+        .insert("path")
         .style("fill", "none")
         .style("stroke", defaultTheme.colors.foregroundColor)
         .style("stroke-width", "2px")
-        .attr("class", "link")
         .attr("d", (d) => {
-          var o = { x: d.source.data.x01, y: d.source.data.y01 };
-          var o2 = { x: d.target.data.x01, y: d.target.data.y01 };
+          let o = { x: d.source.data.x01, y: d.source.data.y01 };
+          let o2 = { x: d.target.data.x01, y: d.target.data.y01 };
           return diagonal({ source: o, target: o2 });
         });
       link.exit().remove();
@@ -186,17 +184,16 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
         .transition()
         .duration(duration)
         .attr("d", (d) => {
-          var o = { x: d.source.data.x01, y: d.source.data.y01 };
-          var o2 = { x: d.target.data.x01, y: d.target.data.y01 };
+          let o = { x: d.source.data.x01, y: d.source.data.y01 };
+          let o2 = { x: d.target.data.x01, y: d.target.data.y01 };
           return diagonal({ source: o, target: o2 });
         });
       // Update the nodes…
-      var node = vis.selectAll("circle.node").data(nodes, nodeId);
+      node = vis.selectAll("circle").data(nodes, nodeId);
       // Enter any new nodes at the parent's previous position.
       node
         .enter()
-        .append("svg:circle")
-        .attr("class", "node")
+        .append("circle")
         .attr("r", 10)
         .attr("cx", (d) => d.data.x01)
         .attr("cy", (d) => d.data.y01)
@@ -296,34 +293,25 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
       setBbox(r);
     });
   });
-  createEffect(() => {
-    observer.disconnect();
+  let upd = () => {
     let valu = active().value;
     if (valu instanceof HTMLElement) {
       let r = valu.getBoundingClientRect();
       setBbox(r);
-
-      observer.observe(valu);
     } else {
       setBbox({ x: -10, y: -10, width: 0, height: 0 });
     }
-    let upd = () => {
-      let valu = active().value;
-      if (valu instanceof HTMLElement) {
-        let r = valu.getBoundingClientRect();
-        setBbox(r);
-      } else {
-        setBbox({ x: -10, y: -10, width: 0, height: 0 });
-      }
-    };
-    let ud2 = () => {
-      requestAnimationFrame(ud2);
-      upd();
-    };
-    window.addEventListener("scroll", upd);
-
-    window.addEventListener("resize", upd);
+  };
+  createEffect(() => {
+    observer.disconnect();
+    upd()
+    let valu = active().value;
+    if (valu instanceof HTMLElement) {
+      observer.observe(valu);
+    }
   });
+  window.addEventListener("scroll", upd);
+  window.addEventListener("resize", upd);
 
   return (
     <div

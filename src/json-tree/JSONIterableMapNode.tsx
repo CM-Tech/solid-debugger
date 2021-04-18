@@ -32,8 +32,8 @@ export const JSONIterableMapNode: Component<{
       isParentExpanded={props.isParentExpanded}
       isParentArray={props.isParentArray}
       keys={keys()}
-      getKey={props.getKey}
-      getValue={props.getValue}
+      getKey={props.getKey ?? getKey}
+      getValue={props.getValue ?? getValue}
       label={`${props.nodeType}(${keys().length})`}
       colon=""
       bracketOpen={"{"}

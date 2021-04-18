@@ -1,4 +1,4 @@
-import { createSignal, Component } from "solid-js";
+import { Component } from "solid-js";
 import { JSONNested } from "./JSONNested";
 
 const keys = ["key", "value"];

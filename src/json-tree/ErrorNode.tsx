@@ -1,7 +1,7 @@
 import { JSONArrow } from "./JSONArrow";
 import { JSONNode } from "./JSONNode";
 import { JSONKey } from "./JSONKey";
-import { Component, createEffect, createMemo, Show, useContext, For, createSignal } from "solid-js";
+import { Component, createEffect, createMemo, Show, For, createSignal } from "solid-js";
 
 export const ErrorNode: Component<{
   key: string | number;

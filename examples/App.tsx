@@ -1,5 +1,5 @@
 import { Debugger } from "../src";
-import { createEffect, createSignal, createState } from "solid-js";
+import { createSignal } from "solid-js";
 import { Show } from "solid-js/web";
 import { Root } from "../src/json-tree/Root";
 
@@ -12,17 +12,6 @@ function Counter() {
 
 function App() {
   const [visible, setVisible] = createSignal(false, true, { name: "hi cole" });
-  const [state, setState] = createState({
-    a: {
-      b: 1,
-      c: 1,
-    },
-    d: {
-      e: 1,
-      f: 1,
-    },
-  });
-  // const b=createEffect(()=>console.log(q()))
   return (
     <Debugger>
       <div class="App-header">

@@ -6,7 +6,6 @@ import {
   getOwner,
   Show,
   JSX,
-  createState,
   createMemo,
 } from "solid-js";
 import { NodeGraph } from "./graph";
@@ -26,7 +25,7 @@ const newAfterUpdate = () => {
   for (let k of Object.keys(solidUpdateListeners)) {
     if (k !== "length") {
       try {
-        solidUpdateListeners[(k as unknown) as keyof typeof solidUpdateListeners]();
+        solidUpdateListeners[(k as unknown) as number]();
       } catch (e) {}
     }
   }
@@ -66,13 +65,13 @@ export const Debugger: Component<{}> = (props) => {
   let children = props.children;
 
   return createRoot(() => {
-    const [bbox, setBbox] = createSignal({ x: -10, y: -10, w: 0, h: 0 });
+    const [bbox, setBbox] = createSignal({ x: -10, y: -10, width: 0, height: 0 });
     const sty = createMemo(() => ({
       position: "fixed",
       top: bbox().y + "px",
       left: bbox().x + "px",
-      width: bbox().w + "px",
-      height: bbox().h + "px",
+      width: bbox().width + "px",
+      height: bbox().height + "px",
       border: `1px dotted ${defaultTheme.colors.ansi.blue}`,
     }));
     let [open, setOpen] = createSignal(false);

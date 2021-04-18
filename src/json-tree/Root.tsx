@@ -1,12 +1,8 @@
 import { JSONNode } from "./JSONNode";
-import { Component, createEffect } from "solid-js";
+import { Component } from "solid-js";
 import "./tmp.css";
 
 export const Root: Component<{ key?: string; value: object; onChange?: (v: object) => void }> = (props) => {
-  // createEffect(()=>{
-
-  //   console.log(props.value);
-  // })
   return (
     <ul
       style={{

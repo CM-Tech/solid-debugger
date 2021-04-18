@@ -1,4 +1,4 @@
-import { createSignal, Component } from "solid-js";
+import { Component } from "solid-js";
 
 export const JSONArrow: Component<{
   onClick: () => void;
