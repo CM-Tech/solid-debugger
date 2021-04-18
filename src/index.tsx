@@ -43,7 +43,7 @@ Object.defineProperty(window, "_$afterUpdate", {
 const SelEl: Component<{ sty: any }> = (props) => {
   // FIXME
   return (
-    <div class="bad-selection-class">
+    <div class="bad-selection-class" ref={(el) => (window.solidDebugHighlight = el)}>
       <style>{`.bad-selection-class{
   position:${props.sty.position};
   width:${props.sty.width};
@@ -51,6 +51,7 @@ const SelEl: Component<{ sty: any }> = (props) => {
   border:${props.sty.border};
   top:${props.sty.top};
   left:${props.sty.left};
+  pointer-events:none;
 }`}</style>
     </div>
   );

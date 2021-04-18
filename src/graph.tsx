@@ -1,4 +1,4 @@
-import { Component, createEffect, createSignal, createState, getOwner, onMount } from "solid-js";
+import { Component, createEffect, createMemo, createSignal, createState, getOwner, onMount } from "solid-js";
 import { select, zoom, forceManyBody, forceSimulation, forceY, forceLink, forceX, BaseType } from "d3";
 import * as d3 from "d3";
 import type { SimulationLinkDatum, SimulationNodeDatum, Selection, ForceLink } from "d3";
@@ -47,6 +47,7 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
   let depth = new Map<Item, number>();
   let values = new Map<Item, any>();
   let updated = new Set<Item>();
+  let data = [];
 
   let queue = [props.root as Item] as Item[];
   function oneEl(x: Item) {
@@ -69,7 +70,11 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
       nodes.push(x);
     }
     depth.set(x, myDepth);
-    if (values.get(x) != x.value) updated.add(x);
+    if (values.get(x) != x.value) {
+      updated.add(x);
+      let q = data.find((d) => x.name === d.data.id);
+      if (q) q.data.updateCountdown = +new Date(); //100+1;
+    }
     values.set(x, x.value);
 
     let owned = (x as Computation).owned;
@@ -95,7 +100,6 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
     var w = 960,
       h = 500,
       root = d3.hierarchy({ id: "root", name: "root" }),
-      data = [],
       tree = d3.tree().size([w - 20, h - 20]),
       diagonal = d3
         .linkVertical()
@@ -170,6 +174,10 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
       for (let no of qq) {
         let dt = data.find((d) => no.data.id === d.data.id);
         dt.parent = no.parent;
+        // if([...updated.values()].find(x=>x.name===dt.data.name)){
+        //   dt.data.updateCountdown=duration+1;
+        // }
+        // dt.data.updateCountdown = Math.max(0,(dt.data.updateCountdown  ?? 0) - tsp);
         if (!no.parent) {
           dt.data.countdown = 0;
         } else {
@@ -190,7 +198,6 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
         // no.data.y0=dt.data.y0;
         no.data = dt.data;
       }
-      window.data = data;
       // Update the links…
       var link = vis.selectAll("path.link").data(links, linkId);
 
@@ -240,19 +247,19 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
           // let cd=(d.data.countdown??duration)/duration;
           return d.data.y01; //=d.data.y0*cd+d.y*(1-cd);
         })
-        .attr("fill", (d) =>
-          (d.data.more as Computation).componentName
-            ? componentNodeColor
-            : d.data.more.value instanceof HTMLElement
-            ? htmlNodeColor
-            : normalNodeColor
-        )
+        // .attr("fill", (d) =>
+        //   (d.data.more as Computation).componentName
+        //     ? componentNodeColor
+        //     : d.data.more.value instanceof HTMLElement
+        //     ? htmlNodeColor
+        //     : normalNodeColor
+        // )
         .style("cursor", "pointer")
         .on("click", (e, d) => {
           setActive(d.data.more);
           e.stopPropagation();
         })
-        .attr("stroke", (d) => (d.data.more.value instanceof HTMLElement ? htmlNodeColor : normalNodeColor))
+        // .attr("stroke", (d) => (d.data.more.value instanceof HTMLElement ? htmlNodeColor : normalNodeColor))
         .style("stroke-width", "5px")
         .style("cursor", "pointer")
         .on("click", (e, d) => {
@@ -271,6 +278,16 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
       //     .duration(duration)
       // .attr("cx", x)
       // .attr("cy", y);
+      node
+        .attr("fill", (d) =>
+          (d.data.more as Computation).componentName
+            ? componentNodeColor
+            : d.data.more.value instanceof HTMLElement
+            ? htmlNodeColor
+            : normalNodeColor
+        )
+        .attr("stroke", (d) => (d.data.more.value instanceof HTMLElement ? htmlNodeColor : normalNodeColor))
+        .attr("r", (d) => (Math.max(0, 250 - (+new Date() - (d.data.updateCountdown ?? 0))) / 250) * 10 + 10);
       node
         .transition()
         .duration(duration)
@@ -300,63 +317,6 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
       return (d.data.y0 = d.y);
     }
 
-    // const g = svg.append("g");
-    // let findChildrenFromLinks = (pI: Item) => {
-    //   return links.filter((x) => x.source === pI).map((x) => x.target as Item);
-    // };
-    // let findParentsFromLinks = (pI: Item) => {
-    //   return [(pI as Computation).owner as Item].filter((x) => x && x != props.root);
-    // };
-
-    // let link = g
-    //   .append("g")
-    //   .selectAll("line")
-    //   .data(links)
-    //   .join("line")
-    //   .attr("stroke", "#D8DEE9")
-    //   .attr("stroke-opacity", 1)
-    //   .attr("stroke-width", 1);
-
-    // const zoome = zoom<SVGSVGElement, unknown>()
-    //   .scaleExtent([0.1, 1])
-    //   .on("zoom", ({ transform }) => g.attr("transform", transform));
-    // zoome.translateBy(svg, (window.innerWidth - 2 - left()) / 2, 0);
-    // svg.call(zoome);
-
-    // const createNode = <T extends BaseType>(x: Selection<T, Item, SVGGElement, unknown>) =>
-    //   x
-    //     .attr("r", 10)
-    //     .attr("fill", (d) =>
-    //       (d as Computation).componentName
-    //         ? componentNodeColor
-    //         : d.value instanceof HTMLElement
-    //         ? htmlNodeColor
-    //         : normalNodeColor
-    //     )
-    //     .style("cursor", "pointer")
-    //     .on("click", (e, d) => {
-    //       setActive(d);
-    //       e.stopPropagation();
-    //     })
-    //     .on("mouseover", (_, d) => {
-    //       node
-    //         .filter(
-    //           (x) => x != d && (d as Computation).owner != x /*&& !(d as Computation).sources?.includes(x as Signal)*/
-    //         )
-    //         .style("opacity", 0.6);
-
-    //       link
-    //         .filter((l) => l.target == d)
-    //         .style("stroke", "#88C0D0")
-    //         .style("stroke-width", 2);
-    //     })
-    //     .on("mouseout", () => {
-    //       node.style("opacity", null);
-    //       link.style("stroke", null).style("stroke-width", null);
-    //     });
-
-    // let node = g.append("g").selectAll("circle").data(nodes).join("circle").call(createNode);
-
     window._$afterUpdate = () => {
       updated.clear();
       depth.clear();
@@ -369,82 +329,7 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
         return { name: x.name, id: x.name, children: x.owned ? x.owned.map(itemToTreeC) : [], more: x };
       };
       root = d3.hierarchy(itemToTreeC(props.root));
-      // data=[root];
-      // update();
-      // node = node.data(nodes).join((enter) => enter.append("circle").call(createNode));
-
-      // node
-      //   .filter((x) => updated.has(x))
-      //   .transition()
-      //   .duration(400)
-      //   .attr("fill", "white")
-      //   .transition()
-      //   .duration(400)
-      //   .attr("fill", (d) =>
-      //     (d as Computation).componentName
-      //       ? componentNodeColor
-      //       : d.value instanceof HTMLElement
-      //       ? htmlNodeColor
-      //       : normalNodeColor
-      //   );
-
-      // link = link.data(links).join("line").attr("stroke", "#D8DEE9").attr("stroke-opacity", 1).attr("stroke-width", 1);
     };
-
-    // const tick = () => {
-    //   link
-    //     .attr("x1", (d) => (d.source as Item).xx!)
-    //     .attr("y1", (d) => (d.source as Item).yy!)
-    //     .attr("x2", (d) => (d.target as Item).xx!)
-    //     .attr("y2", (d) => (d.target as Item).yy!);
-    //   const compNodes = (a: Item, b: Item): number => {
-    //     let aP = findParentsFromLinks(a);
-    //     let bP = findParentsFromLinks(b);
-    //     if (aP.length > 0 && bP.length > 0) {
-    //       let r = compNodes(aP[0], bP[0]);
-    //       if (r !== 0) {
-    //         return r;
-    //       }
-    //     }
-    //     return a.x - b.x;
-    //   };
-    //   let sortedRows = {};
-    //   for (let i = 0; i < 10; i++)
-    //     nodes.forEach((d: Item) => {
-    //       let pI = (d as Computation).owner as Item;
-    //       if (!pI || pI == props.root) return;
-    //       let children = findChildrenFromLinks(d);
-    //       let MUL = 100;
-    //       let myDepth = depth.get(d);
-    //       let row = sortedRows[myDepth];
-    //       if (!row) {
-    //         row = nodes.filter((x) => depth.get(x) === myDepth);
-    //         row.sort(compNodes);
-    //         sortedRows[myDepth] = row;
-    //       }
-    //       let xi = row.indexOf(d);
-    //       let fx = 0;
-    //       if (xi < row.length - 1) {
-    //         fx += 0.1 * Math.min(0, row[xi + 1].x - MUL - d.x);
-    //       }
-    //       if (xi > 0) {
-    //         fx += 0.1 * Math.max(0, row[xi - 1].x + MUL - d.x);
-    //       }
-    //       let targetChildrenMean =
-    //         children.length > 0 ? children.map((x) => x.x).reduce((a, b) => a + b) / children.length : 0;
-    //       if (children.length > 0) {
-    //         fx += 0.02 * (targetChildrenMean - d.x);
-    //       }
-    //       d.x += fx; // * 0.9+0.1*(0.5*targetChildrenMean+0.5*Math.max((pI.x + sOff),diff+d.x+MUL));// + ((pI.x + sOff) / 2 * 2) * 0.01;//Math.max(-diff+d.x+MUL,pI.x+sOff);//m+100+Math.random()-0.5;
-    //       d.y = depth.get(d)! * 100;
-    //       d.xx = d.x; //d.y*Math.sin(d.x!/(d.y!+100)*Math.PI);
-    //       d.yy = d.y; //d.y*Math.cos(d.x!/(d.y!+100)*Math.PI);
-    //     });
-
-    //   node.attr("cx", (d) => d.xx).attr("cy", (d) => d.yy);
-    //   window.requestAnimationFrame(tick);
-    // };
-    // tick();
   });
 
   let [left, setLeft] = createSignal(400);
@@ -468,22 +353,49 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
     }
   });
 
+  const setBbox = () => (bbox) => {
+    if (window.solidDebugHighlight) {
+      window.solidDebugHighlight.style.left = bbox.x + "px";
+      window.solidDebugHighlight.style.top = bbox.y + "px";
+      window.solidDebugHighlight.style.width = bbox.w + "px";
+      window.solidDebugHighlight.style.height = bbox.h + "px";
+    }
+  };
+  //createMemo(()=>props.setBbox);
+  let observer = new ResizeObserver((entries) => {
+    entries.forEach((entry) => {
+      let r = entry.target.getBoundingClientRect();
+      let rect = { x: r.x, y: r.y, w: r.width, h: r.height };
+      setBbox()(rect);
+    });
+  });
   createEffect(() => {
+    observer.disconnect();
+    let valu = active().value;
+    if (valu instanceof HTMLElement) {
+      let r = valu.getBoundingClientRect();
+      let rect = { x: r.x, y: r.y, w: r.width, h: r.height };
+      setBbox()(rect);
+
+      observer.observe(valu);
+    } else {
+      setBbox()({ x: -10, y: -10, w: 0, h: 0 });
+    }
     let upd = () => {
       let valu = active().value;
       if (valu instanceof HTMLElement) {
         let r = valu.getBoundingClientRect();
         let rect = { x: r.x, y: r.y, w: r.width, h: r.height };
-        props.setBbox(rect);
+        setBbox()(rect);
       } else {
-        props.setBbox({ x: -10, y: -10, w: 0, h: 0 });
+        setBbox()({ x: -10, y: -10, w: 0, h: 0 });
       }
     };
     let ud2 = () => {
       requestAnimationFrame(ud2);
       upd();
     };
-    ud2();
+    // ud2();
     window.addEventListener("scroll", upd);
 
     window.addEventListener("resize", upd);
