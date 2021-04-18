@@ -1,6 +1,5 @@
 import { JSONNode } from "./JSONNode";
 import { Component, createEffect } from "solid-js";
-import { contextKey } from "./context";
 import "./tmp.css";
 
 export const Root: Component<{ key?: string; value: object; onChange?: (v: object) => void }> = (props) => {
@@ -18,9 +17,7 @@ export const Root: Component<{ key?: string; value: object; onChange?: (v: objec
         "padding-left": "1em",
       }}
     >
-      <contextKey.Provider value={{}}>
-        <JSONNode key={props.key} value={props.value} isParentExpanded={true} isParentArray={false} />
-      </contextKey.Provider>
+      <JSONNode key={props.key} value={props.value} isParentExpanded={true} isParentArray={false} />
     </ul>
   );
 };

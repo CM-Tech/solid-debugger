@@ -2,7 +2,6 @@ import { JSONArrow } from "./JSONArrow";
 import { JSONNode } from "./JSONNode";
 import { JSONKey } from "./JSONKey";
 import { Component, createEffect, createMemo, Show, useContext, For, createSignal } from "solid-js";
-import { contextKey } from "./context";
 
 export const ErrorNode: Component<{
   key: string | number;
@@ -14,9 +13,6 @@ export const ErrorNode: Component<{
   let [expanded, setExpanded] = createSignal(props.expanded ?? true);
 
   const stack = createMemo(() => props.value.stack.split("\n"));
-
-  const context = useContext(contextKey);
-  // setContext(contextKey, { ...context, colon: ':' })
 
   createEffect(() => {
     if (!props.isParentExpanded) {
@@ -36,7 +32,7 @@ export const ErrorNode: Component<{
         </Show>
         <JSONKey
           key={props.key}
-          colon={context.colon}
+          colon={":"}
           isParentExpanded={props.isParentExpanded}
           isParentArray={props.isParentArray}
         />

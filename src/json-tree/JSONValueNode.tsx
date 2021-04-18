@@ -1,5 +1,4 @@
-import { Component, useContext } from "solid-js";
-import { contextKey } from "./context";
+import { Component } from "solid-js";
 import { JSONKey } from "./JSONKey";
 
 export const JSONValueNode: Component<{
@@ -11,13 +10,11 @@ export const JSONValueNode: Component<{
   valueGetter?: (value: any) => any;
   value: any;
 }> = (props) => {
-  const { colon } = useContext(contextKey);
-
   return (
     <li classList={{ indent: props.isParentExpanded }}>
       <JSONKey
         key={props.key}
-        colon={colon}
+        colon={":"}
         isParentExpanded={props.isParentExpanded}
         isParentArray={props.isParentArray}
         isParentHTML={props.isParentHTML}

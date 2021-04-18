@@ -1,18 +1,15 @@
-import { Component, createEffect, createMemo, createSignal, createState, getOwner, onMount } from "solid-js";
-import { select, zoom, forceManyBody, forceSimulation, forceY, forceLink, forceX, BaseType } from "d3";
+import { Component, createEffect, createSignal, getOwner, onMount } from "solid-js";
+import { select, zoom } from "d3";
 import * as d3 from "d3";
-import type { SimulationLinkDatum, SimulationNodeDatum, Selection, ForceLink } from "d3";
-import { valueToString } from "./utils";
 import { defaultTheme } from "./theme/defaultTheme";
 import { Root } from "./json-tree/Root";
-import objType from "./json-tree/objType";
 
 type Owner = NonNullable<ReturnType<typeof getOwner>>;
 type ComputationArr = NonNullable<Owner["owned"]>;
 type Computation = ComputationArr[number];
 type Signal = NonNullable<Computation["sources"]>[number];
-type Item = (Computation | Signal) & SimulationNodeDatum;
-type Link = SimulationLinkDatum<Item>;
+type Item = (Computation | Signal) & { x: number; y: number; countdown: number };
+
 const Info: Component<{ x: keyof (Computation & Signal); active: any }> = (props) => {
   return (
     <div style={{ "display": "flex", "flex-wrap": "nowrap" }}>
@@ -43,11 +40,10 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
   });
 
   let nodes = [] as Item[];
-  let links = [] as SimulationLinkDatum<Item>[];
   let depth = new Map<Item, number>();
   let values = new Map<Item, any>();
   let updated = new Set<Item>();
-  let data = [];
+  let data = [] as d3.HierarchyPointNode<Item>[];
 
   let queue = [props.root as Item] as Item[];
   function oneEl(x: Item) {
@@ -56,11 +52,9 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
     let myDepth = -1;
     if (x != props.root) {
       let parentsO = [
-        // ...((x as Computation).sources || []),
         ...[(x as Computation).owner as Item], // this could be undefined but we filter below
       ].filter((x) => x != props.root && !!x);
       let parents = parentsO.map((y) => {
-        links.push({ source: y, target: x });
         return oneEl(y);
       });
 
@@ -78,10 +72,7 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
     values.set(x, x.value);
 
     let owned = (x as Computation).owned;
-    if (owned) queue.push(...owned);
-
-    // let observers = (x as Signal).observers;
-    // if (observers) queue.push(...observers);
+    if (owned) queue.push(...(owned as Item[]));
 
     return myDepth;
   }
@@ -92,32 +83,25 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
       .attr("width", "100%")
       .attr("height", "100%")
       .on("click", () => {
-        setActive(props.root as Computation | Signal);
+        setActive(props.root as Item);
       });
 
-    var sfid = 1000;
-
-    var w = 960,
+    var w = window.innerWidth - left() - 2,
       h = 500,
       root = d3.hierarchy({ id: "root", name: "root" }),
       tree = d3.tree().size([w - 20, h - 20]),
       diagonal = d3
         .linkVertical()
-        .x(function (d) {
-          return d.x;
-        })
-        .y(function (d) {
-          return d.y;
-        }),
+        .x((d) => d.x)
+        .y((d) => d.y),
       duration = 100;
-    let tsp = duration;
-    let timer = setInterval(update, tsp);
+
+    setInterval(update, duration);
 
     var vis = svg.append("svg:g");
     const zoome = zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.1, 1])
       .on("zoom", ({ transform }) => vis.attr("transform", transform));
-    zoome.translateBy(svg, (window.innerWidth - 2 - left()) / 2, 0);
     svg.call(zoome);
 
     vis
@@ -140,13 +124,6 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
       }
       w = mWi * 100;
       tree = tree.size([w, h]);
-      //   if (data.length >= 100) {
-      //   data.splice(50, 1);
-      // }
-      // Add a new datum to a random parent.
-      // var d = {id: "ohai"+(++sfid)}, parent = data[~~(Math.random() * data.length)];
-      // if (parent.children) parent.children.push(d); else parent.children = [d];
-      // data.push(d);
 
       // Compute the new tree layout. We'll stash the old layout in the data.
       var treeData = tree(root);
@@ -154,34 +131,25 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
         links = treeData.links();
       let qq = treeData.descendants();
       data = data.filter((x) => !!qq.find((d) => x.data.id === d.data.id));
-      // console.log(qq.length)
       for (let no of qq) {
         let dt = data.find((d) => no.data.id === d.data.id);
         if (!dt) {
           dt = no;
           data.push(no);
         }
-        // dt.data={...dt.data,...no.data};
         if ((dt.x !== no.x || dt.y !== no.y) && (dt.children || []).length === 0) dt.data.countdown = duration + 1;
         dt.x = no.x;
         dt.y = no.y;
         dt.children = no.children;
         no.data = dt.data;
-        // no.data.x0=dt.data.x0;
-        // no.data.y0=dt.data.y0;
-        // no.data.countdown=dt.data.countdown;
       }
       for (let no of qq) {
         let dt = data.find((d) => no.data.id === d.data.id);
         dt.parent = no.parent;
-        // if([...updated.values()].find(x=>x.name===dt.data.name)){
-        //   dt.data.updateCountdown=duration+1;
-        // }
-        // dt.data.updateCountdown = Math.max(0,(dt.data.updateCountdown  ?? 0) - tsp);
         if (!no.parent) {
           dt.data.countdown = 0;
         } else {
-          dt.data.countdown = (dt.data.countdown ?? duration + 1) - tsp;
+          dt.data.countdown = (dt.data.countdown ?? duration + 1) - duration;
           if ((dt.parent.data.countdown ?? duration) > 0) {
             dt.data.countdown = duration + 1;
             dt.data.x0 = no.parent.data.x01 ?? 0;
@@ -194,8 +162,6 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
         let cd = (dt.data.countdown ?? duration) / duration;
         dt.data.y01 = cd * dt.data.y0 + (1 - cd) * dt.y;
         dt.data.x01 = cd * dt.data.x0 + (1 - cd) * dt.x;
-        // no.data.x0=dt.data.x0;
-        // no.data.y0=dt.data.y0;
         no.data = dt.data;
       }
       // Update the links…
@@ -209,24 +175,17 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
         .style("stroke", defaultTheme.colors.foregroundColor)
         .style("stroke-width", "2px")
         .attr("class", "link")
-        .attr("d", function (d) {
+        .attr("d", (d) => {
           var o = { x: d.source.data.x01, y: d.source.data.y01 };
           var o2 = { x: d.target.data.x01, y: d.target.data.y01 };
           return diagonal({ source: o, target: o2 });
         });
-      // .transition()
-      //   .duration(duration)
-      //   .attr("d", diagonal);
       link.exit().remove();
-      // Transition links to their new position.
-      // link.transition()
-      //     .duration(duration)
-      //     .attr("d", diagonal);
 
       link
         .transition()
         .duration(duration)
-        .attr("d", function (d) {
+        .attr("d", (d) => {
           var o = { x: d.source.data.x01, y: d.source.data.y01 };
           var o2 = { x: d.target.data.x01, y: d.target.data.y01 };
           return diagonal({ source: o, target: o2 });
@@ -239,45 +198,22 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
         .append("svg:circle")
         .attr("class", "node")
         .attr("r", 10)
-        .attr("cx", function (d) {
-          // let cd=(d.data.countdown??duration)/duration;
-          return d.data.x01;
-        })
-        .attr("cy", function (d) {
-          // let cd=(d.data.countdown??duration)/duration;
-          return d.data.y01; //=d.data.y0*cd+d.y*(1-cd);
-        })
-        // .attr("fill", (d) =>
-        //   (d.data.more as Computation).componentName
-        //     ? componentNodeColor
-        //     : d.data.more.value instanceof HTMLElement
-        //     ? htmlNodeColor
-        //     : normalNodeColor
-        // )
+        .attr("cx", (d) => d.data.x01)
+        .attr("cy", (d) => d.data.y01)
         .style("cursor", "pointer")
         .on("click", (e, d) => {
           setActive(d.data.more);
           e.stopPropagation();
         })
-        // .attr("stroke", (d) => (d.data.more.value instanceof HTMLElement ? htmlNodeColor : normalNodeColor))
         .style("stroke-width", "5px")
         .style("cursor", "pointer")
         .on("click", (e, d) => {
           setActive(d.data.more);
           e.stopPropagation();
         });
-      // .transition()
-      //   .duration(duration)
-      //   .attr("cx", x)
-      //   .attr("cy", y);
 
       node.exit().remove();
 
-      // Transition nodes to their new position.
-      // node.transition()
-      //     .duration(duration)
-      // .attr("cx", x)
-      // .attr("cy", y);
       node
         .attr("fill", (d) =>
           (d.data.more as Computation).componentName
@@ -291,14 +227,8 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
       node
         .transition()
         .duration(duration)
-        .attr("cx", function (d) {
-          let cd = (d.data.countdown ?? duration) / duration;
-          return d.data.x01; //=d.data.x0*cd+d.x*(1-cd);
-        })
-        .attr("cy", function (d) {
-          let cd = (d.data.countdown ?? duration) / duration;
-          return d.data.y01; //=d.data.y0*cd+d.y*(1-cd);
-        });
+        .attr("cx", (d) => d.data.x01)
+        .attr("cy", (d) => d.data.y01);
     }
 
     function linkId(d) {
@@ -322,13 +252,12 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
       depth.clear();
 
       nodes = [];
-      links = [];
       queue = [props.root as Item];
       while (queue.length) oneEl(queue.shift()!);
-      const itemToTreeC = (x: Item & Owner) => {
-        return { name: x.name, id: x.name, children: x.owned ? x.owned.map(itemToTreeC) : [], more: x };
+      const itemToTreeC = (x: Item) => {
+        return { name: x.name, id: x.name, children: (x as Computation).owned?.map(itemToTreeC) ?? [], more: x };
       };
-      root = d3.hierarchy(itemToTreeC(props.root));
+      root = d3.hierarchy(itemToTreeC(props.root as Item));
     };
   });
 
@@ -353,20 +282,18 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
     }
   });
 
-  const setBbox = () => (bbox) => {
+  const setBbox = (bbox: { x: number; y: number; width: number; height: number }) => {
     if (window.solidDebugHighlight) {
       window.solidDebugHighlight.style.left = bbox.x + "px";
       window.solidDebugHighlight.style.top = bbox.y + "px";
-      window.solidDebugHighlight.style.width = bbox.w + "px";
-      window.solidDebugHighlight.style.height = bbox.h + "px";
+      window.solidDebugHighlight.style.width = bbox.width + "px";
+      window.solidDebugHighlight.style.height = bbox.height + "px";
     }
   };
-  //createMemo(()=>props.setBbox);
   let observer = new ResizeObserver((entries) => {
     entries.forEach((entry) => {
       let r = entry.target.getBoundingClientRect();
-      let rect = { x: r.x, y: r.y, w: r.width, h: r.height };
-      setBbox()(rect);
+      setBbox(r);
     });
   });
   createEffect(() => {
@@ -374,28 +301,25 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
     let valu = active().value;
     if (valu instanceof HTMLElement) {
       let r = valu.getBoundingClientRect();
-      let rect = { x: r.x, y: r.y, w: r.width, h: r.height };
-      setBbox()(rect);
+      setBbox(r);
 
       observer.observe(valu);
     } else {
-      setBbox()({ x: -10, y: -10, w: 0, h: 0 });
+      setBbox({ x: -10, y: -10, width: 0, height: 0 });
     }
     let upd = () => {
       let valu = active().value;
       if (valu instanceof HTMLElement) {
         let r = valu.getBoundingClientRect();
-        let rect = { x: r.x, y: r.y, w: r.width, h: r.height };
-        setBbox()(rect);
+        setBbox(r);
       } else {
-        setBbox()({ x: -10, y: -10, w: 0, h: 0 });
+        setBbox({ x: -10, y: -10, width: 0, height: 0 });
       }
     };
     let ud2 = () => {
       requestAnimationFrame(ud2);
       upd();
     };
-    // ud2();
     window.addEventListener("scroll", upd);
 
     window.addEventListener("resize", upd);
