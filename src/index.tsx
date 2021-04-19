@@ -70,17 +70,16 @@ export const Debugger: Component<{}> = (props) => {
     });
 
     const buttonStyles: JSX.CSSProperties = {
-      "display": "inline-flex",
-      "max-width": "100%",
-      "border": "none",
-      "color": colors.backgroundColor,
-      "min-width": "0px",
-      "min-height": "0px",
-      "flex-direction": "column",
-      "padding": "12px 24px",
       "border-radius": "0px",
+      "border": "none",
+      "padding": "6px",
+      "margin": "0 6px",
       "box-sizing": "border-box",
       "height": "100%",
+      "color": colors.ansi.blue,
+      "background": colors.backgroundColor,
+      "border-width": "2px 0 2px 0",
+      "border-top-color": colors.backgroundColor,
     };
 
     return (
@@ -156,10 +155,10 @@ export const Debugger: Component<{}> = (props) => {
                 "appearance": "none",
                 "font-size": "0.9em",
                 "font-weight": "bold",
-                "background": "rgb(63, 78, 96)",
+                "background": colors.ansi.red,
                 "border": "0px",
                 "border-radius": "0.3em",
-                "color": "white",
+                "color": colors.backgroundColor,
                 "padding": "0.5em",
                 "cursor": "pointer",
                 "position": "fixed",
@@ -174,39 +173,48 @@ export const Debugger: Component<{}> = (props) => {
             </button>
             <div
               style={{
-                "padding": "0.5rem",
+                "padding": "0.0rem",
                 "background": colors.backgroundColor,
                 "display": "flex",
-                "justify-content": "space-between",
+                "justify-content": "flex-start",
                 "align-items": "center",
+                "font-size": 24,
+                "height": 24,
+                "line-height": "32px",
               }}
               onMouseDown={[setIsDragging, true]}
             >
-              <div style={{ "font-size": "1.2rem", "font-weight": "bold" }}>Signals</div>
-              <div>
-                <button
-                  style={{
-                    ...buttonStyles,
-                    color: tab() !== "signals" ? colors.ansi.blue : colors.backgroundColor,
-                    background: tab() === "signals" ? colors.ansi.blue : colors.backgroundColor,
-                    border: `2px solid ${colors.ansi.blue}`,
-                  }}
-                  onClick={() => setTab("signals")}
-                >
-                  Signals
-                </button>
-                <button
-                  style={{
-                    ...buttonStyles,
-                    color: tab() !== "graph" ? colors.ansi.green : colors.backgroundColor,
-                    background: tab() === "graph" ? colors.ansi.green : colors.backgroundColor,
-                    border: `2px solid ${colors.ansi.green}`,
-                  }}
-                  onClick={() => setTab("graph")}
-                >
-                  Graph
-                </button>
-              </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                style={{ "margin": "6px", "text-align": "center", "width": 24 }}
+                viewBox="0 0 24 24"
+                fill="#FFFFFF"
+              >
+                <g>
+                  <rect fill="none" height="24" width="24" />
+                  <path d="M17,5h-2V3h2V5z M15,15v6l2.29-2.29L19.59,21L21,19.59l-2.29-2.29L21,15H15z M19,9h2V7h-2V9z M19,13h2v-2h-2V13z M11,21h2 v-2h-2V21z M7,5h2V3H7V5z M3,17h2v-2H3V17z M5,21v-2H3C3,20.1,3.9,21,5,21z M19,3v2h2C21,3.9,20.1,3,19,3z M11,5h2V3h-2V5z M3,9h2 V7H3V9z M7,21h2v-2H7V21z M3,13h2v-2H3V13z M3,5h2V3C3.9,3,3,3.9,3,5z" />
+                </g>
+              </svg>
+              <button
+                style={{
+                  ...buttonStyles,
+                  "border-bottom":
+                    tab() !== "signals" ? `2px solid ${colors.backgroundColor}` : `2px solid ${colors.ansi.blue}`,
+                }}
+                onClick={() => setTab("signals")}
+              >
+                Signals
+              </button>
+              <button
+                style={{
+                  ...buttonStyles,
+                  "border-bottom":
+                    tab() !== "graph" ? `2px solid ${colors.backgroundColor}` : `2px solid ${colors.ansi.blue}`,
+                }}
+                onClick={() => setTab("graph")}
+              >
+                Graph
+              </button>
             </div>
             <Show when={open()}>
               <Show when={tab() == "graph"}>
