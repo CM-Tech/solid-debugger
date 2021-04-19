@@ -1,4 +1,4 @@
-import { Component, createEffect, createRoot, createSignal, getOwner, Show, JSX, createMemo } from "solid-js";
+import { Component, createEffect, createRoot, createSignal, getOwner, Show, JSX } from "solid-js";
 import { NodeGraph } from "./graph";
 import { SignalList } from "./signals";
 import { colors } from "./theme";

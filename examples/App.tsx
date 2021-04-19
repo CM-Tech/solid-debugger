@@ -1,5 +1,5 @@
 import { Debugger } from "../src";
-import { defaultTheme } from "../src/theme/defaultTheme";
+import { colors } from "../src/theme";
 import { createSignal } from "solid-js";
 import { Show } from "solid-js/web";
 import { Root } from "../src/json-tree/Root";
@@ -11,7 +11,7 @@ function Counter() {
   return (
     <button
       onClick={increment}
-      style={{ border: "none", background: defaultTheme.colors.ansi.green, color: defaultTheme.colors.backgroundColor }}
+      style={{ border: "none", background: colors.ansi.green, color: colors.backgroundColor }}
     >
       {count()}
     </button>
@@ -27,8 +27,8 @@ function App() {
           onClick={() => setVisible(!visible())}
           style={{
             border: "none",
-            background: defaultTheme.colors.ansi.red,
-            color: defaultTheme.colors.backgroundColor,
+            background: colors.ansi.red,
+            color: colors.backgroundColor,
           }}
         >
           Toggle visibility
