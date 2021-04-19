@@ -12,7 +12,7 @@ import { Component, createMemo, untrack } from "solid-js";
 function Switcher(props: any) {
   return createMemo(() => {
     const { component } = props;
-    return component && untrack(() => component(props));
+    return untrack(() => component(props));
   });
 }
 
@@ -82,8 +82,6 @@ export const JSONNode: Component<{
             list.push(lines[i]);
             if (i < lines.length - 1) {
               list.push(<br />);
-            } else {
-              // list.push(lines[i]);
             }
           }
           if (!amOnlyTextNode) list.push(`"`);

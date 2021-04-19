@@ -2,34 +2,23 @@ import { Component, createEffect, createRoot, createSignal, getOwner, Show, JSX 
 import { NodeGraph } from "./graph";
 import { SignalList } from "./signals";
 import { colors } from "./theme";
-const solidUpdateListeners: (() => void)[] = [window._$afterUpdate];
-let solidUpdateListenerCount = 1;
-window.addSolidUpdateListener = (listener: () => void) => {
-  let c = solidUpdateListenerCount++;
-  solidUpdateListeners[c] = listener;
-  return c;
-};
-window.removeSolidUpdateListener = (id: number) => {
-  delete solidUpdateListeners[id];
-};
-const newAfterUpdate = () => {
-  for (let k of Object.keys(solidUpdateListeners)) {
-    if (k !== "length") {
+
+if (!window._$afterUpdate) {
+  const solidUpdateListeners: (() => void)[] = [];
+  window.addSolidUpdateListener = (listener: () => void) => {
+    return solidUpdateListeners.push(listener) - 1;
+  };
+  window.removeSolidUpdateListener = (id: number) => {
+    delete solidUpdateListeners[id];
+  };
+  window._$afterUpdate = () => {
+    for (let k of solidUpdateListeners) {
       try {
-        solidUpdateListeners[(k as unknown) as number]();
+        k();
       } catch (e) {}
     }
-  }
-};
-window._$afterUpdate = newAfterUpdate;
-Object.defineProperty(window, "_$afterUpdate", {
-  get: function () {
-    return newAfterUpdate;
-  },
-  set: function (val) {
-    return (solidUpdateListeners[0] = val);
-  },
-});
+  };
+}
 
 export const Debugger: Component<{}> = (props) => {
   let self = getOwner()!;

@@ -38,7 +38,7 @@ export const ErrorNode: Component<{
         />
         <span onClick={toggleExpand}>Error: {expanded() ? "" : props.value.message}</span>
         <Show when={props.isParentExpanded}>
-          <ul classList={{ collapse: !expanded() }}>
+          <ul classList={{ collapse: !expanded() }} style={{ "list-style": "none" }}>
             <Show when={expanded()}>
               <JSONNode key="message" value={props.value.message} />
               <li>

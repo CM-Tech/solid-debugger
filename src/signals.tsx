@@ -1,4 +1,4 @@
-import { Component, createSignal, For, getOwner } from "solid-js";
+import { Component, createSignal, For, getOwner, onCleanup } from "solid-js";
 import { Root } from "./json-tree/Root";
 import { colors } from "./theme";
 
@@ -23,7 +23,7 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
     walked.add(x);
     // if (values.get(x) != x.value) updated.add(x);
     // values.set(x, x.value);
-    if ((x as Signal).value != undefined) {
+    if ((x as Owner).owner == undefined) {
       signals.push(x as Signal);
     }
     let owned = (x as Computation).owned;
@@ -34,7 +34,7 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
   }
   while (queue.length) oneEl(queue.shift()!);
 
-  window._$afterUpdate = () => {
+  const updateListener = window.addSolidUpdateListener(() => {
     if (!updating) {
       signals = [];
       walked.clear();
@@ -46,7 +46,8 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
       setSignalsS(signals);
     }
     updating = false;
-  };
+  });
+  onCleanup(() => window.removeSolidUpdateListener(updateListener));
 
   return (
     <div style={{ position: "relative" }}>
@@ -57,7 +58,6 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
               <>
                 <div
                   style={{
-                    /*width: 2rem; */
                     "min-height": "32px",
                     "background": `${colors.backgroundColor}`,
                     "display": "flex",
@@ -65,21 +65,13 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
                     "justify-content": "center",
                     "font-weight": "bold",
                     "color": `${colors.ansi.blue}`,
-                    // "text-shadow": "black 0px 0px 10px",
                   }}
                 >
-                  {el.name}
+                  {el.name || "unnamed"}
                 </div>
                 <div>
                   <Root value={el.value}></Root>
                 </div>
-                {/* <Editor
-                  style={{ "display": "grid", "flex-grow": 1, "min-height": "19px" }}
-                  onDocChange={(v) => {
-                    writeSignal.bind(el)(v);
-                  }}
-                  value={el.value}
-                ></Editor> */}
               </>
             )}
           </For>

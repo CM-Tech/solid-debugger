@@ -11,11 +11,6 @@ export const JSONArrayNode: Component<{
   const filteredKey = new Set(["length"]);
 
   let keys = createMemo(() => Object.getOwnPropertyNames(props.value));
-  let previewKeys = createMemo(() => keys().filter((key) => !filteredKey.has(key)));
-
-  function getValue(key: any) {
-    return props.value[key];
-  }
 
   return (
     <JSONNested
@@ -25,8 +20,8 @@ export const JSONArrayNode: Component<{
       isParentArray={props.isParentArray}
       isArray={true}
       keys={keys()}
-      previewKeys={previewKeys()}
-      getValue={getValue}
+      previewKeys={keys().filter((key) => !filteredKey.has(key))}
+      getValue={(key: any) => props.value[key]}
       label={`Array(${props.value.length})`}
       bracketOpen="["
       bracketClose="]"

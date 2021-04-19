@@ -16,7 +16,7 @@ type DiagonalLink = {
   source: { x: number; y: number };
   target: { x: number; y: number };
 };
-const Info: Component<{ x: keyof Computation; active: any }> = (props) => {
+const Info: Component<{ x: keyof Item; active: Item }> = (props) => {
   return (
     <div style={{ "display": "flex", "flex-wrap": "nowrap" }}>
       <code
@@ -166,11 +166,6 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
         .attr("r", (d) => (d.data.expansionLevel < 0 ? 0 : Math.max(10, 30 - d.data.recentlyUpdated * 10)))
         .attr("cx", (d) => d.data.x0)
         .attr("cy", (d) => d.data.y0)
-        .style("cursor", "pointer")
-        .on("click", (e, d) => {
-          setActive(d.data);
-          e.stopPropagation();
-        })
         .style("stroke-width", "5px")
         .style("cursor", "pointer")
         .on("click", (e, d) => {
@@ -198,14 +193,15 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
         .attr("r", (d) => (d.data.expansionLevel < 0 ? 0 : Math.max(10, 30 - d.data.recentlyUpdated * 10)));
     }
 
-    window._$afterUpdate = () => {
+    let updateListener = window.addSolidUpdateListener(() => {
       updated.clear();
 
       root = d3.hierarchy<Item>(props.root as Item, (x) => x.owned as Item[]);
       root.each((x) => oneEl(x));
 
       if (updated.has(active())) setActive(active());
-    };
+    });
+    onCleanup(() => window.removeSolidUpdateListener(updateListener));
   });
 
   const [isDragging, setIsDragging] = createSignal(false);

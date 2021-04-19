@@ -1,6 +1,6 @@
 import { Debugger } from "../src";
 import { colors } from "../src/theme";
-import { createSignal } from "solid-js";
+import { createSignal, onMount } from "solid-js";
 import { Show } from "solid-js/web";
 import { Root } from "../src/json-tree/Root";
 
@@ -20,11 +20,18 @@ function Counter() {
 
 function App() {
   const [visible, setVisible] = createSignal(false, true, { name: "hi cole" });
+  const [arr, setArr] = createSignal();
+  onMount(() => {
+    setArr([...document.querySelector("#root").children]);
+  });
   return (
     <Debugger>
       <div class="App-header">
         <button
-          onClick={() => setVisible(!visible())}
+          onClick={() => {
+            setVisible(!visible());
+            setArr(undefined);
+          }}
           style={{
             border: "none",
             background: colors.ansi.red,
@@ -36,14 +43,7 @@ function App() {
         <Show when={visible()}>
           <Counter />
         </Show>
-        <Root
-          value={{
-            notYourCHeese: [1, 2, 3],
-            booolFoool: true,
-            spaghetti: "code",
-            bob: document.body,
-          }}
-        />
+        <Root value={arr()} />
       </div>
     </Debugger>
   );
