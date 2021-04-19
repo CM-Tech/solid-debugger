@@ -2,7 +2,7 @@ import { Component, createEffect, createRoot, createSignal, getOwner, Show, JSX 
 import { NodeGraph } from "./graph";
 import { SignalList } from "./signals";
 import { colors } from "./theme";
-
+import "./font.css";
 if (!window._$afterUpdate) {
   const solidUpdateListeners: (() => void)[] = [];
   window.addSolidUpdateListener = (listener: () => void) => {
@@ -82,6 +82,7 @@ export const Debugger: Component<{}> = (props) => {
             "height": bbox().height + "px",
             "border": `1px dotted ${colors.ansi.blue}`,
             "pointer-events": "none",
+            "font-family": "'Victor Mono',monospace",
           }}
         />
         <div style={{ [open() ? "padding-bottom" : ""]: `${height()}px` }}>{children}</div>
@@ -117,7 +118,6 @@ export const Debugger: Component<{}> = (props) => {
           <div
             style={{
               "font-size": "clamp(12px, 1.5vw, 14px)",
-              "font-family": "sans-serif",
               "display": "grid",
               "grid-template-rows": "auto minmax(0, 1fr)",
               "grid-template-columns": "1fr",

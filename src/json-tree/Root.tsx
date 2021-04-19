@@ -6,7 +6,7 @@ export const Root: Component<{ key?: string; value: object; onChange?: (v: objec
   return (
     <ul
       style={{
-        "font-family": "'Nausti Sans',monospace",
+        "font-family": "'Victor Mono',monospace",
         "list-style": "none",
         "margin": 0,
         "padding": 0,
