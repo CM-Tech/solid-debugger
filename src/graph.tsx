@@ -298,6 +298,10 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any; setLeftButtons: a
       props.setBbox({ x: -10, y: -10, width: 0, height: 0 });
     }
   };
+  let upd2 = () => {
+    requestAnimationFrame(upd2);
+    upd();
+  };
   createEffect(() => {
     observer.disconnect();
     upd();
@@ -306,6 +310,7 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any; setLeftButtons: a
       observer.observe(valu);
     }
   });
+  upd2();
   window.addEventListener("scroll", upd);
   onCleanup(() => {
     window.removeEventListener("scroll", upd);
