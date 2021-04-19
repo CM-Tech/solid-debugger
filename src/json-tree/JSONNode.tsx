@@ -12,7 +12,7 @@ import { Component, createMemo, untrack } from "solid-js";
 function Switcher(props: any) {
   return createMemo(() => {
     const { component } = props;
-    return untrack(() => component(props));
+    return component(props);
   });
 }
 
