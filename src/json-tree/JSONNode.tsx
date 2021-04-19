@@ -5,15 +5,17 @@ import { JSONIterableMapNode } from "./JSONIterableMapNode";
 import { JSONMapEntryNode } from "./JSONMapEntryNode";
 import { JSONValueNode } from "./JSONValueNode";
 import { ErrorNode } from "./ErrorNode";
-import objType from "./objType";
-import { Component, createMemo } from "solid-js";
 import { JSONObjectNode } from "./JSONObjectNode";
+import objType from "./objType";
+import { Component, createMemo, untrack } from "solid-js";
+
 function Switcher(props: any) {
   return createMemo(() => {
-    const SelectedComponent = props.component;
-    return SelectedComponent && (() => SelectedComponent(props));
+    const { component } = props;
+    return component && untrack(() => component(props));
   });
 }
+
 export const JSONNode: Component<{
   value: any;
   key: string;
@@ -91,19 +93,17 @@ export const JSONNode: Component<{
         return () => `<${nodeType}>`;
     }
   }
-  const ComponentType = createMemo(() => getComponent(nodeType()));
-  const valueGetter = createMemo(() => getValueGetter(nodeType()));
 
   return (
     <Switcher
-      component={ComponentType()}
+      component={getComponent(nodeType())}
       key={props.key}
       value={props.value}
       isParentExpanded={props.isParentExpanded}
       isParentArray={props.isParentArray}
       isParentHTML={props.isParentHTML}
       nodeType={nodeType()}
-      valueGetter={valueGetter()}
+      valueGetter={getValueGetter(nodeType())}
     />
   );
 };
