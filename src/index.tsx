@@ -1,7 +1,7 @@
 import { Component, createEffect, createRoot, createSignal, getOwner, Show, JSX, createMemo } from "solid-js";
 import { NodeGraph } from "./graph";
 import { SignalList } from "./signals";
-import { defaultTheme } from "./theme/defaultTheme";
+import { colors } from "./theme";
 const solidUpdateListeners: (() => void)[] = [window._$afterUpdate];
 let solidUpdateListenerCount = 1;
 window.addSolidUpdateListener = (listener: () => void) => {
@@ -30,22 +30,7 @@ Object.defineProperty(window, "_$afterUpdate", {
     return (solidUpdateListeners[0] = val);
   },
 });
-const SelEl: Component<{ sty: any }> = (props) => {
-  // FIXME
-  return (
-    <div class="bad-selection-class" ref={(el) => (window.solidDebugHighlight = el)}>
-      <style>{`.bad-selection-class{
-  position:${props.sty.position};
-  width:${props.sty.width};
-  height:${props.sty.height};
-  border:${props.sty.border};
-  top:${props.sty.top};
-  left:${props.sty.left};
-  pointer-events:none;
-}`}</style>
-    </div>
-  );
-};
+
 export const Debugger: Component<{}> = (props) => {
   let self = getOwner()!;
   let root = self;
@@ -57,14 +42,6 @@ export const Debugger: Component<{}> = (props) => {
 
   return createRoot(() => {
     const [bbox, setBbox] = createSignal({ x: -10, y: -10, width: 0, height: 0 });
-    const sty = createMemo(() => ({
-      position: "fixed",
-      top: bbox().y + "px",
-      left: bbox().x + "px",
-      width: bbox().width + "px",
-      height: bbox().height + "px",
-      border: `1px dotted ${defaultTheme.colors.ansi.blue}`,
-    }));
     let [open, setOpen] = createSignal(false);
     let [tab, setTab] = createSignal("graph");
 
@@ -79,7 +56,6 @@ export const Debugger: Component<{}> = (props) => {
 
       setHeight(h + offset);
     };
-
     const onMouseUp = () => setIsDragging(false);
 
     createEffect(() => {
@@ -97,7 +73,7 @@ export const Debugger: Component<{}> = (props) => {
       "display": "inline-flex",
       "max-width": "100%",
       "border": "none",
-      "color": defaultTheme.colors.backgroundColor,
+      "color": colors.backgroundColor,
       "min-width": "0px",
       "min-height": "0px",
       "flex-direction": "column",
@@ -109,7 +85,17 @@ export const Debugger: Component<{}> = (props) => {
 
     return (
       <>
-        <SelEl sty={sty()} />
+        <div
+          style={{
+            "position": "fixed",
+            "top": bbox().y + "px",
+            "left": bbox().x + "px",
+            "width": bbox().width + "px",
+            "height": bbox().height + "px",
+            "border": `1px dotted ${colors.ansi.blue}`,
+            "pointer-events": "none",
+          }}
+        />
         <div style={{ [open() ? "padding-bottom" : ""]: `${height()}px` }}>{children}</div>
         <footer>
           <Show when={!open()}>
@@ -147,7 +133,7 @@ export const Debugger: Component<{}> = (props) => {
               "display": "grid",
               "grid-template-rows": "auto minmax(0, 1fr)",
               "grid-template-columns": "1fr",
-              "background-color": defaultTheme.colors.backgroundColor,
+              "background-color": colors.backgroundColor,
               "color": "white",
               "position": "fixed",
               "bottom": "0px",
@@ -189,7 +175,7 @@ export const Debugger: Component<{}> = (props) => {
             <div
               style={{
                 "padding": "0.5rem",
-                "background": defaultTheme.colors.backgroundColor,
+                "background": colors.backgroundColor,
                 "display": "flex",
                 "justify-content": "space-between",
                 "align-items": "center",
@@ -201,10 +187,9 @@ export const Debugger: Component<{}> = (props) => {
                 <button
                   style={{
                     ...buttonStyles,
-                    color: tab() !== "signals" ? defaultTheme.colors.ansi.blue : defaultTheme.colors.backgroundColor,
-                    background:
-                      tab() === "signals" ? defaultTheme.colors.ansi.blue : defaultTheme.colors.backgroundColor,
-                    border: `2px solid ${defaultTheme.colors.ansi.blue}`,
+                    color: tab() !== "signals" ? colors.ansi.blue : colors.backgroundColor,
+                    background: tab() === "signals" ? colors.ansi.blue : colors.backgroundColor,
+                    border: `2px solid ${colors.ansi.blue}`,
                   }}
                   onClick={() => setTab("signals")}
                 >
@@ -213,10 +198,9 @@ export const Debugger: Component<{}> = (props) => {
                 <button
                   style={{
                     ...buttonStyles,
-                    color: tab() !== "graph" ? defaultTheme.colors.ansi.green : defaultTheme.colors.backgroundColor,
-                    background:
-                      tab() === "graph" ? defaultTheme.colors.ansi.green : defaultTheme.colors.backgroundColor,
-                    border: `2px solid ${defaultTheme.colors.ansi.green}`,
+                    color: tab() !== "graph" ? colors.ansi.green : colors.backgroundColor,
+                    background: tab() === "graph" ? colors.ansi.green : colors.backgroundColor,
+                    border: `2px solid ${colors.ansi.green}`,
                   }}
                   onClick={() => setTab("graph")}
                 >

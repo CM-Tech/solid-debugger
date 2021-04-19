@@ -1,6 +1,6 @@
 import { Component, createEffect, createSignal, getOwner, onMount, equalFn, onCleanup } from "solid-js";
 import * as d3 from "d3";
-import { defaultTheme } from "./theme/defaultTheme";
+import { colors } from "./theme";
 import { Root } from "./json-tree/Root";
 
 type Owner = NonNullable<ReturnType<typeof getOwner>>;
@@ -37,9 +37,9 @@ const Info: Component<{ x: keyof Computation; active: any }> = (props) => {
   );
 };
 export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
-  const componentNodeColor = defaultTheme.colors.ansi.green;
-  const htmlNodeColor = defaultTheme.colors.ansi.yellow;
-  const normalNodeColor = defaultTheme.colors.ansi.blue;
+  const componentNodeColor = colors.ansi.green;
+  const htmlNodeColor = colors.ansi.yellow;
+  const normalNodeColor = colors.ansi.blue;
   let el!: SVGSVGElement;
   const [active, setActive] = createSignal(props.root as Item, undefined, {
     name: "analyze-node",
@@ -130,7 +130,7 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
         .enter()
         .insert("path")
         .style("fill", "none")
-        .style("stroke", defaultTheme.colors.foregroundColor)
+        .style("stroke", colors.foregroundColor)
         .style("stroke-width", "2px")
         .attr("d", (d) => {
           let o = { x: d.source.data.x0, y: d.source.data.y0 };
@@ -228,27 +228,19 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
     }
   });
 
-  const setBbox = (bbox: { x: number; y: number; width: number; height: number }) => {
-    if (window.solidDebugHighlight) {
-      window.solidDebugHighlight.style.left = bbox.x + "px";
-      window.solidDebugHighlight.style.top = bbox.y + "px";
-      window.solidDebugHighlight.style.width = bbox.width + "px";
-      window.solidDebugHighlight.style.height = bbox.height + "px";
-    }
-  };
   let observer = new ResizeObserver((entries) => {
     entries.forEach((entry) => {
       let r = entry.target.getBoundingClientRect();
-      setBbox(r);
+      props.setBbox(r);
     });
   });
   let upd = () => {
     let valu = active().value;
     if (valu instanceof HTMLElement) {
       let r = valu.getBoundingClientRect();
-      setBbox(r);
+      props.setBbox(r);
     } else {
-      setBbox({ x: -10, y: -10, width: 0, height: 0 });
+      props.setBbox({ x: -10, y: -10, width: 0, height: 0 });
     }
   };
   createEffect(() => {
@@ -260,7 +252,10 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any }> = (props) => {
     }
   });
   window.addEventListener("scroll", upd);
-  window.addEventListener("resize", upd);
+  onCleanup(() => {
+    window.removeEventListener("scroll", upd);
+    props.setBbox({ x: -10, y: -10, width: 0, height: 0 });
+  });
 
   return (
     <div
