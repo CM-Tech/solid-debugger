@@ -9,10 +9,31 @@ import { JSONObjectNode } from "./JSONObjectNode";
 import objType from "./objType";
 import { Component, createMemo, untrack } from "solid-js";
 
+function getComponent(nodeType: string, value): Component<any> {
+  switch (nodeType) {
+    case "HTMLElement":
+      return JSONHTMLNode;
+    case "Object":
+      return JSONObjectNode;
+    case "Error":
+      return ErrorNode;
+    case "Array":
+      return JSONArrayNode;
+    case "Iterable":
+    case "Map":
+    case "Set":
+      return typeof value.set === "function" ? JSONIterableMapNode : JSONIterableArrayNode;
+    case "MapEntry":
+      return JSONMapEntryNode;
+
+    default:
+      return JSONValueNode;
+  }
+}
 function Switcher(props: any) {
   return createMemo(() => {
-    const { component } = props;
-    return component(props);
+    const component = getComponent(props.nodeType, props.value);
+    return () => component(props);
   });
 }
 
@@ -23,29 +44,8 @@ export const JSONNode: Component<{
   isParentArray?: boolean;
   isParentHTML?: boolean;
 }> = (props) => {
-  const nodeType = createMemo(() => objType(props.value));
-
-  function getComponent(nodeType: string): Component<any> {
-    switch (nodeType) {
-      case "HTMLElement":
-        return JSONHTMLNode;
-      case "Object":
-        return JSONObjectNode;
-      case "Error":
-        return ErrorNode;
-      case "Array":
-        return JSONArrayNode;
-      case "Iterable":
-      case "Map":
-      case "Set":
-        return typeof props.value.set === "function" ? JSONIterableMapNode : JSONIterableArrayNode;
-      case "MapEntry":
-        return JSONMapEntryNode;
-
-      default:
-        return JSONValueNode;
-    }
-  }
+  const value = createMemo(() => props.value);
+  const nodeType = createMemo(() => objType(value()));
 
   function getValueGetter(nodeType: string) {
     switch (nodeType) {
@@ -94,9 +94,8 @@ export const JSONNode: Component<{
 
   return (
     <Switcher
-      component={getComponent(nodeType())}
       key={props.key}
-      value={props.value}
+      value={value()}
       isParentExpanded={props.isParentExpanded}
       isParentArray={props.isParentArray}
       isParentHTML={props.isParentHTML}
