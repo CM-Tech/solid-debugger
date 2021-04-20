@@ -7,7 +7,9 @@ import { JSONValueNode } from "./JSONValueNode";
 import { ErrorNode } from "./ErrorNode";
 import { JSONObjectNode } from "./JSONObjectNode";
 import objType from "./objType";
-import { Component, createMemo, untrack } from "solid-js";
+import { Component, createEffect, createMemo, on, untrack, useContext } from "solid-js";
+import { JSONRef, JSONRefContext, useRefRef } from "./JSONRefValue";
+import { JSONNodeProps } from "./p";
 
 function getComponent(nodeType: string, value: any): Component<any> {
   switch (nodeType) {
@@ -37,14 +39,18 @@ function Switcher(props: any) {
   });
 }
 
-export const JSONNode: Component<{
-  value: any;
-  key: string;
-  isParentExpanded?: boolean;
-  isParentArray?: boolean;
-  isParentHTML?: boolean;
-}> = (props) => {
-  const nodeType = createMemo(() => objType(props.value));
+export const JSONNode: Component<
+  {
+    key: string;
+    jsonRef: any;
+  } & JSONNodeProps
+> = (props) => {
+  const refRef = useRefRef(() => props.jsonRefId, props.jsonRef, "GLOG");
+
+  if (!refRef()) {
+    return null;
+  }
+  const nodeType = createMemo(() => refRef()[1]);
 
   function getValueGetter(nodeType: string) {
     switch (nodeType) {
@@ -70,7 +76,7 @@ export const JSONNode: Component<{
         return () => "undefined";
       case "Function":
       case "Symbol":
-        return (raw: Symbol) => raw.toString();
+        return (raw: Symbol) => raw?.toString?.();
       case "Text":
         return (raw: Text) => {
           const amOnlyTextNode = raw.parentElement.childNodes.length === 1;
@@ -93,11 +99,10 @@ export const JSONNode: Component<{
 
   return (
     <Switcher
+      jsonRef={props.jsonRef}
       key={props.key}
-      value={props.value}
-      isParentExpanded={props.isParentExpanded}
-      isParentArray={props.isParentArray}
-      isParentHTML={props.isParentHTML}
+      jsonRefId={props.jsonRefId}
+      parent={props.parent}
       nodeType={nodeType()}
       valueGetter={getValueGetter(nodeType())}
     />

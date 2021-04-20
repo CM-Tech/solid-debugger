@@ -1,30 +1,27 @@
-import { Component, createMemo } from "solid-js";
+import { Component } from "solid-js";
 import { JSONNested } from "./JSONNested";
+import { useRefRef } from "./JSONRefValue";
+import { JSONNodeProps } from "./p";
 
-export const JSONArrayNode: Component<{
-  value: any[];
-  key: any;
-  expanded?: boolean;
-  isParentExpanded: boolean;
-  isParentArray: boolean;
-}> = (props) => {
-  const filteredKey = new Set(["length"]);
-
-  let keys = createMemo(() => Object.getOwnPropertyNames(props.value));
-
+export const JSONArrayNode: Component<
+  {
+    key: string;
+    nodeType: string;
+  } & JSONNodeProps
+> = (props) => {
+  const refRef = useRefRef(() => props.jsonRefId, props.jsonRef);
+  if (!refRef()) {
+    return null;
+  }
   return (
     <JSONNested
+      jsonRef={props.jsonRef}
       key={props.key}
-      expanded={props.expanded ?? false}
-      isParentExpanded={props.isParentExpanded}
-      isParentArray={props.isParentArray}
-      isArray={true}
-      keys={keys()}
-      previewKeys={keys().filter((key) => !filteredKey.has(key))}
-      getValue={(key: any) => props.value[key]}
-      label={`Array(${props.value.length})`}
-      bracketOpen="["
-      bracketClose="]"
+      jsonRefId={props.jsonRefId}
+      parent={props.parent}
+      label={`Array(${refRef().length})`}
+      bracketOpen={"["}
+      bracketClose={"]"}
     />
   );
 };

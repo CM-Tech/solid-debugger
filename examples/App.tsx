@@ -22,7 +22,7 @@ function App() {
   const [visible, setVisible] = createSignal(false, true, { name: "hi cole" });
   const [arr, setArr] = createSignal<any>();
   onMount(() => {
-    let k: any = { hello: "world" };
+    let k: any = { hello: "world", b: document.body };
     k.g = k;
     setArr(k);
   });

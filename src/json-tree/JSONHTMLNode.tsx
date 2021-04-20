@@ -1,38 +1,34 @@
+import { Component, For } from "solid-js";
 import { JSONNested } from "./JSONNested";
-import { Component, createMemo, For } from "solid-js";
+import { useRefRef } from "./JSONRefValue";
+import { JSONNodeProps } from "./p";
 
-export const JSONHTMLNode: Component<{
-  value: HTMLElement;
-  expanded?: boolean;
-  isParentExpanded: boolean;
-  isParentArray: boolean;
-  key: string;
-  nodeType: string;
-  isParentHTML?: boolean;
-}> = (props) => {
-  let keys = createMemo(() => Object.getOwnPropertyNames(props.value.childNodes));
-
+export const JSONHTMLNode: Component<
+  {
+    key: string;
+    nodeType: string;
+  } & JSONNodeProps
+> = (props) => {
+  const refRef = useRefRef(() => props.jsonRefId, props.jsonRef);
+  if (!refRef()) {
+    return null;
+  }
   return (
     <JSONNested
-      key={props.key ? (props.isParentHTML ? "" : props.key + ":") : props.key}
-      expanded={props.expanded ?? false}
-      isParentExpanded={props.isParentExpanded}
-      isParentArray={props.isParentArray}
-      isParentHTML={props.isParentHTML}
-      isHTML={true}
-      keys={keys()}
-      previewKeys={keys()}
+      jsonRefId={props.jsonRefId}
+      jsonRef={props.jsonRef}
+      key={props.key ? (props.parent.objType === "HTMLElement" ? "" : props.key + ":") : props.key}
+      parent={props.parent}
       previewCount={0}
-      getValue={(k: number) => props.value.childNodes[k]}
       colon={""}
       label={``}
-      expandable={props.value.childNodes.length > 0}
+      expandable={refRef()[0].childNodes.length > 0}
       bracketOpen={
         <>
           {"<"}
-          {props.value.tagName.toLowerCase()}
-          {[...props.value.attributes].length > 0 ? " " : ""}
-          <For each={[...props.value.attributes]}>
+          {refRef()[0].tagName.toLowerCase()}
+          {[...refRef()[0].attributes].length > 0 ? " " : ""}
+          <For each={[...refRef()[0].attributes]}>
             {(a) => (
               <>
                 {" "}
@@ -50,7 +46,7 @@ export const JSONHTMLNode: Component<{
           {">"}
         </>
       }
-      bracketClose={`</${props.value.tagName.toLowerCase()}>`}
+      bracketClose={`</${refRef()[0].tagName.toLowerCase()}>`}
     />
   );
 };

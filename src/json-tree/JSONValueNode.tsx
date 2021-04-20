@@ -1,25 +1,29 @@
-import { Component } from "solid-js";
+import { Component, createMemo, createSignal, onCleanup, onMount, useContext } from "solid-js";
 import { JSONKey } from "./JSONKey";
+import { JSONRefContext, useRefRef } from "./JSONRefValue";
+import { JSONNodeProps } from "./p";
 
-export const JSONValueNode: Component<{
-  key: string;
-  isParentExpanded: boolean;
-  isParentArray: boolean;
-  isParentHTML: boolean;
-  nodeType: string;
-  valueGetter?: (value: any) => any;
-  value: any;
-}> = (props) => {
+export const JSONValueNode: Component<
+  {
+    key: string;
+    nodeType: string;
+    valueGetter?: (value: any) => any;
+  } & JSONNodeProps
+> = (props) => {
+  // console.log("SU")
+  const refRef = useRefRef(() => props.jsonRefId, props.jsonRef, "BOP");
+  const [val, setVal] = createSignal(props.valueGetter ? props.valueGetter(refRef()[0]) : refRef()[0]);
+  onMount(() => {
+    let id = setInterval(() => {
+      setVal(props.valueGetter ? props.valueGetter(refRef()[0]) : refRef()[0]);
+    }, 100);
+    onCleanup(() => clearInterval(id));
+  });
+  // console.log("EU",refRef())
   return (
-    <li classList={{ indent: props.isParentExpanded }}>
-      <JSONKey
-        key={props.key}
-        colon={":"}
-        isParentExpanded={props.isParentExpanded}
-        isParentArray={props.isParentArray}
-        isParentHTML={props.isParentHTML}
-      />
-      <span class={props.nodeType}>{props.valueGetter ? props.valueGetter(props.value) + "" : props.value + ""}</span>
+    <li classList={{ indent: props.parent.expanded }}>
+      <JSONKey key={props.key} colon={":"} parent={props.parent} />
+      <span class={props.nodeType}>{val()}</span>
     </li>
   );
 };
