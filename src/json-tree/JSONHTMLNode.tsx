@@ -11,8 +11,8 @@ export const JSONHTMLNode: Component<{
   nodeType: string;
   isParentHTML?: boolean;
 }> = (props) => {
-  let value = () => props.value; //createDeepMemo(()=>props.value);
-  let keys = createMemo(() => Object.getOwnPropertyNames(value().childNodes));
+  let value = (): HTMLElement | {} => props.value ?? {}; //createDeepMemo(()=>props.value);
+  let keys = createMemo(() => Object.getOwnPropertyNames(value()?.childNodes ?? {}));
 
   return (
     <JSONNested
@@ -25,16 +25,16 @@ export const JSONHTMLNode: Component<{
       keys={keys()}
       previewKeys={keys()}
       previewCount={0}
-      getValue={(k: number) => value().childNodes[k]}
+      getValue={(k: number) => value()?.childNodes?.[k]}
       colon={""}
       label={``}
-      expandable={value().childNodes.length > 0}
+      expandable={value()?.childNodes?.length > 0}
       bracketOpen={
         <>
           {"<"}
-          {value().tagName.toLowerCase()}
-          {[...value().attributes].length > 0 ? " " : ""}
-          <For each={[...value().attributes]}>
+          {value()?.tagName?.toLowerCase?.()}
+          {[...(value()?.attributes ?? [])].length > 0 ? " " : ""}
+          <For each={[...(value()?.attributes ?? [])]}>
             {(a) => (
               <>
                 {" "}
@@ -52,7 +52,7 @@ export const JSONHTMLNode: Component<{
           {">"}
         </>
       }
-      bracketClose={`</${value().tagName.toLowerCase()}>`}
+      bracketClose={`</${value()?.tagName?.toLowerCase?.()}>`}
     />
   );
 };

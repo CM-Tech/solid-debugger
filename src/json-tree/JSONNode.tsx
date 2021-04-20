@@ -92,7 +92,7 @@ export const JSONNode: Component<{
         return () => `<${nodeType}>`;
     }
   }
-  let [valueGetter, setValueGetter] = createSignal(() => undefined);
+  let [valueGetter, setValueGetter] = createSignal((v: any) => undefined);
   let [component, setComponent] = createSignal(JSONValueNode);
   createEffect(
     on(nodeType, () => {

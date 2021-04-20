@@ -29,6 +29,31 @@ export const jsonID = (a: any) => {
 // const deepEqual=(a:any,b:any,stack:[any,any][]=[])=>{
 
 // }
+// export const createDeepMemo = (a) => {
+//   let lastRValueS ="";
+//   let lastJSON = makeJSONStringRef(lastRValueS);
+//   const [rvalue, setRValue] = createSignal({lastJSON:"",lastRValueS:""});
+//   onMount(() => {
+//     let id = window.setInterval(() => {
+//       let aa = a();
+//       // if(
+//       //   rvalue().json!==json ||rvalue().value!==aa){
+//       let nJ = makeJSONStringRef(aa);
+//       if (aa !== lastRValueS || lastJSON !== nJ) {
+
+//         lastJSON = nJ;
+//         lastRValueS = aa;
+
+//         setRValue({lastJSON,lastRValueS});
+//       }
+//       // }
+//     }, 1);
+//     onCleanup(() => {
+//       window.clearInterval(id);
+//     });
+//   });
+//   return ()=>rvalue().lastRValueS
+// };
 export const createDeepMemo = (a) => {
   let lastRValueS = a();
   let lastJSON = jsonID(lastRValueS);

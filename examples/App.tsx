@@ -32,7 +32,6 @@ function App() {
         <button
           onClick={() => {
             setVisible(!visible());
-            setArr(undefined);
           }}
           style={{
             border: "none",
