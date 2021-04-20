@@ -22,7 +22,9 @@ function App() {
   const [visible, setVisible] = createSignal(false, true, { name: "hi cole" });
   const [arr, setArr] = createSignal();
   onMount(() => {
-    setArr([...document.querySelector("#root").children]);
+    let k = { hello: "world" };
+    k.g = k;
+    setArr(k);
   });
   return (
     <Debugger>

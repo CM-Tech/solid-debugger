@@ -41,7 +41,7 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any; setLeftButtons: a
   const htmlNodeColor = colors.ansi.yellow;
   const normalNodeColor = colors.ansi.blue;
   let el!: SVGSVGElement;
-  const [active, setActive] = createSignal(props.root as Item, undefined, {
+  const [active, setActive] = createSignal(props.root as Item, (p, n) => p === n && equalFn(p.value, n.value), {
     name: "analyze-node",
   });
   const [left, setLeft] = createSignal(400);

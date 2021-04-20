@@ -7,7 +7,8 @@ import { JSONValueNode } from "./JSONValueNode";
 import { ErrorNode } from "./ErrorNode";
 import { JSONObjectNode } from "./JSONObjectNode";
 import objType from "./objType";
-import { Component, createMemo, untrack } from "solid-js";
+import { Component, createEffect, createMemo, createSignal, on, untrack } from "solid-js";
+import { createDeepMemo } from "./Root";
 
 function getComponent(nodeType: string, value): Component<any> {
   switch (nodeType) {
@@ -31,10 +32,7 @@ function getComponent(nodeType: string, value): Component<any> {
   }
 }
 function Switcher(props: any) {
-  return createMemo(() => {
-    const component = getComponent(props.nodeType, props.value);
-    return () => component(props);
-  });
+  return () => props.component(props);
 }
 
 export const JSONNode: Component<{
@@ -44,7 +42,7 @@ export const JSONNode: Component<{
   isParentArray?: boolean;
   isParentHTML?: boolean;
 }> = (props) => {
-  const value = createMemo(() => props.value);
+  const value = createDeepMemo(() => props.value);
   const nodeType = createMemo(() => objType(value()));
 
   function getValueGetter(nodeType: string) {
@@ -73,11 +71,14 @@ export const JSONNode: Component<{
       case "Symbol":
         return (raw: Symbol) => raw.toString();
       case "Text":
-        return (raw: Text) => {
+        return (raww: Text) => {
+          const r = createDeepMemo(() => raww);
+          let raw = r();
+          const rt = createDeepMemo(() => raww.textContent);
           const amOnlyTextNode = raw.parentElement.childNodes.length === 1;
           let list: any[] = [];
           if (!amOnlyTextNode) list.push(`"`);
-          let lines = `${raw.textContent}`.split(`\n`);
+          let lines = `${rt()}`.split(`\n`);
           for (let i = 0; i < lines.length; i++) {
             list.push(lines[i]);
             if (i < lines.length - 1) {
@@ -91,16 +92,28 @@ export const JSONNode: Component<{
         return () => `<${nodeType}>`;
     }
   }
-
+  let [valueGetter, setValueGetter] = createSignal(() => undefined);
+  let [component, setComponent] = createSignal(JSONValueNode);
+  createEffect(
+    on(nodeType, () => {
+      setValueGetter(getValueGetter(nodeType()));
+    })
+  );
+  createEffect(
+    on(nodeType, value, () => {
+      setComponent(getComponent(nodeType(), value()));
+    })
+  );
   return (
     <Switcher
       key={props.key}
       value={value()}
+      component={component()}
       isParentExpanded={props.isParentExpanded}
       isParentArray={props.isParentArray}
       isParentHTML={props.isParentHTML}
       nodeType={nodeType()}
-      valueGetter={getValueGetter(nodeType())}
+      valueGetter={valueGetter()}
     />
   );
 };

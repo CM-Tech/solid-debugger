@@ -70,11 +70,15 @@ export const JSONNested: Component<{
                   isParentExpanded={expanded()}
                   isParentHTML={props.isHTML ?? false}
                   isParentArray={props.isArray ?? false}
-                  value={
-                    expanded()
-                      ? (props.getValue ?? ((key: string) => key))(key)
-                      : (props.getPreviewValue ?? props.getValue)(key)
-                  }
+                  value={(() => {
+                    try {
+                      return expanded()
+                        ? (props.getValue ?? ((key: string) => key))(key)
+                        : (props.getPreviewValue ?? props.getValue)(key);
+                    } catch (e) {
+                      return null;
+                    }
+                  })()}
                 />
                 <Show when={!expanded() && index() < previewKeys().length - 1}>
                   <span class="comma">,</span>

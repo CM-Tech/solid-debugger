@@ -9,7 +9,13 @@ export const JSONObjectNode: Component<{
   key: string;
   nodeType: string;
 }> = (props) => {
-  let keys = createMemo(() => Object.getOwnPropertyNames(props.value));
+  let keys = createMemo(() => {
+    try {
+      return Object.getOwnPropertyNames(props.value);
+    } catch (e) {
+      return [];
+    }
+  });
 
   return (
     <JSONNested
@@ -19,7 +25,13 @@ export const JSONObjectNode: Component<{
       isParentArray={props.isParentArray}
       keys={keys()}
       previewKeys={keys()}
-      getValue={(k: string) => props.value[k]}
+      getValue={(k: string) => {
+        try {
+          return props.value[k];
+        } catch (e) {
+          return null;
+        }
+      }}
       label={`${props.nodeType} `}
       bracketOpen={"{"}
       bracketClose={"}"}
