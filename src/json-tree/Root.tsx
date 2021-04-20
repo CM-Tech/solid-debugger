@@ -1,82 +1,39 @@
 import { JSONNode } from "./JSONNode";
-import { Component, createMemo, createSignal, createState, onCleanup, onMount } from "solid-js";
+import { Component, createSignal, onCleanup, onMount } from "solid-js";
 import "./tmp.css";
 
-export function decycle(obj, stack = []) {
-  if (!obj || typeof obj !== "object") return obj;
-
-  if (stack.includes(obj)) return null;
-
-  let s = stack.concat([obj]);
-
-  return Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, decycle(v, s)]));
-}
-export const jsonID = (a: any) => {
-  const dd = decycle(a);
-  // console.log("DD:",dd)
-  // try{
-  //   return JSON.stringify(Object.entries(dd));
-  // }catch(e){
-  return JSON.stringify(dd);
-  // }
+export const jsonNoLoops = (a: any) => {
+  let cache = new Set<any>();
+  return JSON.stringify(a, (_, value) => {
+    if (typeof value === "object" && value !== null) {
+      if (cache.has(value)) return;
+      cache.add(value);
+    }
+    return value;
+  });
 };
-// window.jsonId=(a:any)=>{
-//   const dd=decycle(a);
-//   console.log("DD:",dd)
 
-// return JSON.stringify(dd&&Object.entries(dd));
-// }
-// const deepEqual=(a:any,b:any,stack:[any,any][]=[])=>{
-
-// }
-// export const createDeepMemo = (a) => {
-//   let lastRValueS ="";
-//   let lastJSON = makeJSONStringRef(lastRValueS);
-//   const [rvalue, setRValue] = createSignal({lastJSON:"",lastRValueS:""});
-//   onMount(() => {
-//     let id = window.setInterval(() => {
-//       let aa = a();
-//       // if(
-//       //   rvalue().json!==json ||rvalue().value!==aa){
-//       let nJ = makeJSONStringRef(aa);
-//       if (aa !== lastRValueS || lastJSON !== nJ) {
-
-//         lastJSON = nJ;
-//         lastRValueS = aa;
-
-//         setRValue({lastJSON,lastRValueS});
-//       }
-//       // }
-//     }, 1);
-//     onCleanup(() => {
-//       window.clearInterval(id);
-//     });
-//   });
-//   return ()=>rvalue().lastRValueS
-// };
-export const createDeepMemo = (a) => {
+export const createDeepMemo = (a: any) => {
   let lastRValueS = a();
-  let lastJSON = jsonID(lastRValueS);
-  const [rvalue, setRValue] = createSignal(lastRValueS, false, { name: JSON.stringify(decycle(lastRValueS)) });
+  let lastJSON = jsonNoLoops(lastRValueS);
+  const [rvalue, setRValue] = createSignal(lastRValueS, false, { name: jsonNoLoops(lastRValueS) });
   onMount(() => {
     let id = window.setInterval(() => {
       let aa = a();
-      // if(
-      //   rvalue().json!==json ||rvalue().value!==aa){
-      let nJ = jsonID(aa);
+      let nJ = jsonNoLoops(aa);
       if (aa !== lastRValueS || lastJSON !== nJ) {
         lastJSON = nJ;
         lastRValueS = aa;
         setRValue(aa);
       }
-      // }
     }, 1);
     onCleanup(() => {
       window.clearInterval(id);
     });
   });
-  return rvalue; //()=>rvalue().value
+  return rvalue;
 };
+
 export const Root: Component<{ key?: string; value: object; onChange?: (v: object) => void }> = (props) => {
   const value = createDeepMemo(() => props.value);
 

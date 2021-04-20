@@ -47,7 +47,7 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any; setLeftButtons: a
   const [left, setLeft] = createSignal(400);
 
   const [selecting, setSelecting] = createSignal(false);
-  let hList = [];
+  let hList: (() => void)[] = [];
 
   let values = new Map<Item, any>();
   let updated = new Set<Item>();
@@ -242,22 +242,21 @@ export const NodeGraph: Component<{ root: Owner; setBbox: any; setLeftButtons: a
       }
       let htmlNodes = nodes.filter((x) => (x as any).value instanceof HTMLElement);
       hList = htmlNodes.map((x) => {
-        let lis = (event) => {
+        let hoverListener = (event: MouseEvent) => {
           event.stopPropagation();
-          setActive(x);
+          setActive(x as Item);
         };
-        let el = (x as any).value as HTMLElement;
-        el.addEventListener("mouseover", lis);
-        let lis2 = (event) => {
+        let clickListener = (event: MouseEvent) => {
           event.stopPropagation();
           setSelecting(false);
-          setActive(x);
-          el.removeEventListener("click", lis2);
+          setActive(x as Item);
         };
-        el.addEventListener("click", lis2);
+        let el = (x as any).value as HTMLElement;
+        el.addEventListener("mouseover", hoverListener);
+        el.addEventListener("click", clickListener, { once: true });
         return () => {
-          el.removeEventListener("mouseover", lis);
-          el.removeEventListener("click", lis2);
+          el.removeEventListener("mouseover", hoverListener);
+          el.removeEventListener("click", clickListener);
         };
       });
     }

@@ -7,10 +7,10 @@ import { JSONValueNode } from "./JSONValueNode";
 import { ErrorNode } from "./ErrorNode";
 import { JSONObjectNode } from "./JSONObjectNode";
 import objType from "./objType";
-import { Component, createEffect, createMemo, createSignal, on, untrack } from "solid-js";
+import { Component, createMemo, untrack } from "solid-js";
 import { createDeepMemo } from "./Root";
 
-function getComponent(nodeType: string, value): Component<any> {
+function getComponent(nodeType: string, value: any): Component<any> {
   switch (nodeType) {
     case "HTMLElement":
       return JSONHTMLNode;
@@ -92,18 +92,16 @@ export const JSONNode: Component<{
         return () => `<${nodeType}>`;
     }
   }
-  let [valueGetter, setValueGetter] = createSignal((v: any) => undefined);
-  let [component, setComponent] = createSignal(JSONValueNode);
-  createEffect(
-    on(nodeType, () => {
-      setValueGetter(getValueGetter(nodeType()));
-    })
-  );
-  createEffect(
-    on(nodeType, value, () => {
-      setComponent(getComponent(nodeType(), value()));
-    })
-  );
+  let valueGetter = createMemo(() => {
+    let nt = nodeType();
+    return untrack(() => getValueGetter(nt));
+  });
+  let component = createMemo(() => {
+    let nt = nodeType();
+    let v = value();
+    return untrack(() => getComponent(nt, v));
+  });
+
   return (
     <Switcher
       key={props.key}

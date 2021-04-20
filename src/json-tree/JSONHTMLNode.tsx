@@ -1,6 +1,5 @@
 import { JSONNested } from "./JSONNested";
 import { Component, createMemo, For } from "solid-js";
-import { createDeepMemo } from "./Root";
 
 export const JSONHTMLNode: Component<{
   value: HTMLElement;
@@ -11,8 +10,7 @@ export const JSONHTMLNode: Component<{
   nodeType: string;
   isParentHTML?: boolean;
 }> = (props) => {
-  let value = (): HTMLElement | {} => props.value ?? {}; //createDeepMemo(()=>props.value);
-  let keys = createMemo(() => Object.getOwnPropertyNames(value()?.childNodes ?? {}));
+  let keys = createMemo(() => Object.getOwnPropertyNames(props.value.childNodes));
 
   return (
     <JSONNested
@@ -25,16 +23,16 @@ export const JSONHTMLNode: Component<{
       keys={keys()}
       previewKeys={keys()}
       previewCount={0}
-      getValue={(k: number) => value()?.childNodes?.[k]}
+      getValue={(k: number) => props.value.childNodes[k]}
       colon={""}
       label={``}
-      expandable={value()?.childNodes?.length > 0}
+      expandable={props.value.childNodes.length > 0}
       bracketOpen={
         <>
           {"<"}
-          {value()?.tagName?.toLowerCase?.()}
-          {[...(value()?.attributes ?? [])].length > 0 ? " " : ""}
-          <For each={[...(value()?.attributes ?? [])]}>
+          {props.value.tagName.toLowerCase()}
+          {[...props.value.attributes].length > 0 ? " " : ""}
+          <For each={[...props.value.attributes]}>
             {(a) => (
               <>
                 {" "}
@@ -52,7 +50,7 @@ export const JSONHTMLNode: Component<{
           {">"}
         </>
       }
-      bracketClose={`</${value()?.tagName?.toLowerCase?.()}>`}
+      bracketClose={`</${props.value.tagName.toLowerCase()}>`}
     />
   );
 };

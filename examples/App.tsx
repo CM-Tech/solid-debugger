@@ -20,9 +20,9 @@ function Counter() {
 
 function App() {
   const [visible, setVisible] = createSignal(false, true, { name: "hi cole" });
-  const [arr, setArr] = createSignal();
+  const [arr, setArr] = createSignal<any>();
   onMount(() => {
-    let k = { hello: "world" };
+    let k: any = { hello: "world" };
     k.g = k;
     setArr(k);
   });
