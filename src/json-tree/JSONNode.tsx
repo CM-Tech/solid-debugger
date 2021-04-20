@@ -31,7 +31,10 @@ function getComponent(nodeType: string, value: any): Component<any> {
   }
 }
 function Switcher(props: any) {
-  return () => props.component(props);
+  return createMemo(() => {
+    const component = getComponent(props.nodeType, props.value);
+    return () => component(props);
+  });
 }
 
 export const JSONNode: Component<{
@@ -87,26 +90,16 @@ export const JSONNode: Component<{
         return () => `<${nodeType}>`;
     }
   }
-  let valueGetter = createMemo(() => {
-    let nt = nodeType();
-    return untrack(() => getValueGetter(nt));
-  });
-  let component = createMemo(() => {
-    let nt = nodeType();
-    let v = props.value;
-    return untrack(() => getComponent(nt, v));
-  });
 
   return (
     <Switcher
       key={props.key}
       value={props.value}
-      component={component()}
       isParentExpanded={props.isParentExpanded}
       isParentArray={props.isParentArray}
       isParentHTML={props.isParentHTML}
       nodeType={nodeType()}
-      valueGetter={valueGetter()}
+      valueGetter={getValueGetter(nodeType())}
     />
   );
 };
