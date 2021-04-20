@@ -1,5 +1,5 @@
 import { JSONNode } from "./JSONNode";
-import { Component, createSignal, onCleanup, onMount } from "solid-js";
+import { Component } from "solid-js";
 import "./tmp.css";
 
 export const jsonNoLoops = (a: any) => {
@@ -13,30 +13,7 @@ export const jsonNoLoops = (a: any) => {
   });
 };
 
-export const createDeepMemo = (a: any) => {
-  let lastRValueS = a();
-  let lastJSON = jsonNoLoops(lastRValueS);
-  const [rvalue, setRValue] = createSignal(lastRValueS, false, { name: jsonNoLoops(lastRValueS) });
-  onMount(() => {
-    let id = window.setInterval(() => {
-      let aa = a();
-      let nJ = jsonNoLoops(aa);
-      if (aa !== lastRValueS || lastJSON !== nJ) {
-        lastJSON = nJ;
-        lastRValueS = aa;
-        setRValue(aa);
-      }
-    }, 1);
-    onCleanup(() => {
-      window.clearInterval(id);
-    });
-  });
-  return rvalue;
-};
-
 export const Root: Component<{ key?: string; value: object; onChange?: (v: object) => void }> = (props) => {
-  const value = createDeepMemo(() => props.value);
-
   return (
     <ul
       style={{
@@ -47,7 +24,7 @@ export const Root: Component<{ key?: string; value: object; onChange?: (v: objec
         "padding-left": "1em",
       }}
     >
-      <JSONNode key={props.key} value={value()} isParentExpanded={true} isParentArray={false} />
+      <JSONNode key={props.key} value={props.value} isParentExpanded={true} isParentArray={false} />
     </ul>
   );
 };

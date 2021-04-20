@@ -8,7 +8,6 @@ import { ErrorNode } from "./ErrorNode";
 import { JSONObjectNode } from "./JSONObjectNode";
 import objType from "./objType";
 import { Component, createMemo, untrack } from "solid-js";
-import { createDeepMemo } from "./Root";
 
 function getComponent(nodeType: string, value: any): Component<any> {
   switch (nodeType) {
@@ -42,8 +41,7 @@ export const JSONNode: Component<{
   isParentArray?: boolean;
   isParentHTML?: boolean;
 }> = (props) => {
-  const value = createDeepMemo(() => props.value);
-  const nodeType = createMemo(() => objType(value()));
+  const nodeType = createMemo(() => objType(props.value));
 
   function getValueGetter(nodeType: string) {
     switch (nodeType) {
@@ -71,14 +69,11 @@ export const JSONNode: Component<{
       case "Symbol":
         return (raw: Symbol) => raw.toString();
       case "Text":
-        return (raww: Text) => {
-          const r = createDeepMemo(() => raww);
-          let raw = r();
-          const rt = createDeepMemo(() => raww.textContent);
+        return (raw: Text) => {
           const amOnlyTextNode = raw.parentElement.childNodes.length === 1;
           let list: any[] = [];
           if (!amOnlyTextNode) list.push(`"`);
-          let lines = `${rt()}`.split(`\n`);
+          let lines = `${raw.textContent}`.split(`\n`);
           for (let i = 0; i < lines.length; i++) {
             list.push(lines[i]);
             if (i < lines.length - 1) {
@@ -98,14 +93,14 @@ export const JSONNode: Component<{
   });
   let component = createMemo(() => {
     let nt = nodeType();
-    let v = value();
+    let v = props.value;
     return untrack(() => getComponent(nt, v));
   });
 
   return (
     <Switcher
       key={props.key}
-      value={value()}
+      value={props.value}
       component={component()}
       isParentExpanded={props.isParentExpanded}
       isParentArray={props.isParentArray}

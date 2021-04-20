@@ -1,6 +1,5 @@
 import { Component } from "solid-js";
 import { JSONKey } from "./JSONKey";
-import { createDeepMemo } from "./Root";
 
 export const JSONValueNode: Component<{
   key: string;
@@ -11,7 +10,6 @@ export const JSONValueNode: Component<{
   valueGetter?: (value: any) => any;
   value: any;
 }> = (props) => {
-  const value = createDeepMemo(() => props.value);
   return (
     <li classList={{ indent: props.isParentExpanded }}>
       <JSONKey
@@ -21,15 +19,7 @@ export const JSONValueNode: Component<{
         isParentArray={props.isParentArray}
         isParentHTML={props.isParentHTML}
       />
-      <span class={props.nodeType}>
-        {(() => {
-          try {
-            return props.valueGetter ? props.valueGetter(value()) + "" : value() + "";
-          } catch (e) {
-            return "";
-          }
-        })()}
-      </span>
+      <span class={props.nodeType}>{props.valueGetter ? props.valueGetter(props.value) + "" : props.value + ""}</span>
     </li>
   );
 };
