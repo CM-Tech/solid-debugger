@@ -49,7 +49,7 @@ export const JSONHTMLNode: Component<
           {">"}
         </>
       }
-      bracketClose={`</${props.value.tagName.toLowerCase()}>`}
+      bracketClose={`</${props.value.tagName?.toLowerCase?.()}>`}
     />
   );
 };
