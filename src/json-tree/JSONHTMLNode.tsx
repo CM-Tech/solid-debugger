@@ -10,7 +10,7 @@ export const JSONHTMLNode: Component<
     nodeType: string;
   } & JSONNodeProps
 > = (props) => {
-  let keys = createMemo(() => Object.getOwnPropertyNames(props.value?.childNodes));
+  let keys = createMemo(() => Object.getOwnPropertyNames(props.value?.childNodes ?? {}));
 
   return (
     <JSONNested
