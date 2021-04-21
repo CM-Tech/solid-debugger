@@ -1,5 +1,5 @@
+import { Component } from "solid-js";
 import { JSONNested } from "./JSONNested";
-import { Component, createMemo } from "solid-js";
 import { JSONNodeProps } from "./p";
 
 export const JSONObjectNode: Component<

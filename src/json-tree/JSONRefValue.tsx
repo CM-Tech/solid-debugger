@@ -1,16 +1,6 @@
+import { createContext, createMemo } from "solid-js";
 import objRecord from "./objRecord";
 import objType from "./objType";
-import {
-  createContext,
-  useContext,
-  createSignal,
-  createEffect,
-  onMount,
-  onCleanup,
-  createState,
-  createMemo,
-  on,
-} from "solid-js";
 
 export type JSONRef = [any, string, [string | number, number][]][];
 export const makeJSONRef = (a: any, old?: JSONRef): [JSONRef, number] => {
@@ -42,11 +32,17 @@ export const makeJSONStringRef = (a: any) => {
   return JSON.stringify(ref.map((x) => [x[0] + "", x[1], x[2]]));
 };
 export const JSONRefContext = createContext([]);
-const cq = (x, y) => x && y && y[0] === x[0] && y[1] === x[1] && JSON.stringify(y[2]) === JSON.stringify(x[2]);
-export const useRefRef = (jsonRefId: () => number, jsonRefg: JSONRef, name?: string) => {
+const cq = (x: JSONRef[0], y: JSONRef[0]) =>
+  x && y && y[0] === x[0] && y[1] === x[1] && JSON.stringify(y[2]) === JSON.stringify(x[2]);
+export const useRefRef = (jsonRefId: () => number, jsonRefg: JSONRef) => {
   let g = createMemo(
     () => {
-      return { v: jsonRefg[jsonRefId()], a: jsonRefg[jsonRefId()][0], b: jsonRefg[jsonRefId()][1], l: jsonRefId() };
+      return {
+        v: jsonRefg[jsonRefId()],
+        a: jsonRefg[jsonRefId()][0],
+        b: jsonRefg[jsonRefId()][1],
+        l: jsonRefId(),
+      };
     },
     undefined,
     (a, b) => cq(a.v, b.v)

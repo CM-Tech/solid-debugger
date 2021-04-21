@@ -10,8 +10,7 @@ export const JSONValueNode: Component<
     valueGetter?: (value: any) => any;
   } & JSONNodeProps
 > = (props) => {
-  // console.log("SU")
-  const refRef = useRefRef(() => props.jsonRefId, props.jsonRef, "BOP");
+  const refRef = useRefRef(() => props.jsonRefId, props.jsonRef);
   const [val, setVal] = createSignal(props.valueGetter ? props.valueGetter(refRef()[0]) : refRef()[0]);
   onMount(() => {
     let id = setInterval(() => {
@@ -19,7 +18,6 @@ export const JSONValueNode: Component<
     }, 100);
     onCleanup(() => clearInterval(id));
   });
-  // console.log("EU",refRef())
   return (
     <li classList={{ indent: props.parent.expanded }}>
       <JSONKey key={props.key} colon={":"} parent={props.parent} />

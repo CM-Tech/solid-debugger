@@ -1,14 +1,13 @@
-import { JSONHTMLNode } from "./JSONHTMLNode";
+import { Component, createMemo } from "solid-js";
+import { ErrorNode } from "./ErrorNode";
 import { JSONArrayNode } from "./JSONArrayNode";
+import { JSONHTMLNode } from "./JSONHTMLNode";
 import { JSONIterableArrayNode } from "./JSONIterableArrayNode";
 import { JSONIterableMapNode } from "./JSONIterableMapNode";
 import { JSONMapEntryNode } from "./JSONMapEntryNode";
-import { JSONValueNode } from "./JSONValueNode";
-import { ErrorNode } from "./ErrorNode";
 import { JSONObjectNode } from "./JSONObjectNode";
-import objType from "./objType";
-import { Component, createEffect, createMemo, on, untrack, useContext } from "solid-js";
-import { JSONRef, JSONRefContext, useRefRef } from "./JSONRefValue";
+import { useRefRef } from "./JSONRefValue";
+import { JSONValueNode } from "./JSONValueNode";
 import { JSONNodeProps } from "./p";
 
 function getComponent(nodeType: string, value: any): Component<any> {
@@ -45,7 +44,7 @@ export const JSONNode: Component<
     jsonRef: any;
   } & JSONNodeProps
 > = (props) => {
-  const refRef = useRefRef(() => props.jsonRefId, props.jsonRef, "GLOG");
+  const refRef = useRefRef(() => props.jsonRefId, props.jsonRef);
 
   if (!refRef()) {
     return null;
