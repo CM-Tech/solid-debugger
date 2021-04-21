@@ -11,12 +11,12 @@ specifiers:
   rollup-preset-solid: ^0.3.0
   solid-js: ^0.26.1
   vite: ^2.2.1
-  vite-plugin-solid: ^1.6.0
+  vite-plugin-solid: ^1.6.1
 
 dependencies:
   d3: 6.7.0
   vite: 2.2.1
-  vite-plugin-solid: 1.6.0
+  vite-plugin-solid: 1.6.1
 
 devDependencies:
   '@types/d3': 6.3.0
@@ -1828,8 +1828,8 @@ packages:
     engines: {node: '>= 4.0.0'}
     dev: true
 
-  /vite-plugin-solid/1.6.0:
-    resolution: {integrity: sha512-Z9iB9WBPLi9TWzzU8hgBk/iNLsjJRo4qDpAkM5sz9v5EEvs9kFIaJxS+blbC75Ya5e6VYewpwNn9z+Fq0IQfsg==}
+  /vite-plugin-solid/1.6.1:
+    resolution: {integrity: sha512-o2gSRbl5Wq2PtOYsbKFst7bxT8DSQlQfALn3POFH5dBhsHShCb4kGr3KafWoxQyVG4OEZUxxZKCeyzuGrZKBNw==}
     dependencies:
       '@babel/core': 7.13.16
       '@babel/preset-typescript': 7.13.0_@babel+core@7.13.16
