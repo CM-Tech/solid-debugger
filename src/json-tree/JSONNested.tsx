@@ -43,7 +43,7 @@ export const JSONNested: Component<
   }
 
   return (
-    <li classList={{ indent: isParentExpanded() }}>
+    <li classList={{ indent: isParentExpanded() }} style={props.parent.root ? { "margin-left": "1em" } : {}}>
       <label>
         <Show when={(props.expandable ?? true) && isParentExpanded()}>
           <JSONArrow onClick={toggleExpand} expanded={expanded()} />
@@ -61,7 +61,7 @@ export const JSONNested: Component<
               <>
                 <JSONNode
                   key={(props.getKey ?? ((key: string) => key))(key)}
-                  parent={{ expanded: expanded(), objType: refRef()[1] }}
+                  parent={{ expanded: expanded(), objType: refRef()[1], root: false }}
                   jsonRef={props.jsonRef}
                   jsonRefId={vRef}
                   // value={(() => {

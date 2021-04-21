@@ -2,6 +2,7 @@ import { Component, For } from "solid-js";
 import { JSONNested } from "./JSONNested";
 import { useRefRef } from "./JSONRefValue";
 import { JSONNodeProps } from "./p";
+import { Root } from "./Root";
 
 export const JSONHTMLNode: Component<
   {
@@ -35,7 +36,7 @@ export const JSONHTMLNode: Component<
                 <span class="Number">{a.name}</span>
                 {a.value !== "" ? (
                   <>
-                    =<span class="String">{JSON.stringify(a.value)}</span>
+                    =<Root value={a.value}></Root>
                   </>
                 ) : (
                   ""

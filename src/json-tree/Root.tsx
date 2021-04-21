@@ -41,8 +41,6 @@ export const Root: Component<{ key?: string; value: object; onChange?: (v: objec
     }, 100);
     onCleanup(() => window.clearInterval(id));
   });
-  const jI = createMemo(() => jj[1]);
-  const jK = createMemo(() => jj[0]);
   return (
     <ul
       style={{
@@ -50,11 +48,17 @@ export const Root: Component<{ key?: string; value: object; onChange?: (v: objec
         "list-style": "none",
         "margin": 0,
         "padding": 0,
-        "padding-left": "1em",
+        "padding-left": "0em",
+        "display": "inline-block",
       }}
     >
       {/* <JSONRefContext.Provider value={jsonRef()[0]}> */}
-      <JSONNode key={props.key} jsonRefId={jsonRefS()} jsonRef={jsonRefS2()} parent={{ expanded: true, objType: "" }} />
+      <JSONNode
+        key={props.key}
+        jsonRefId={jsonRefS()}
+        jsonRef={jsonRefS2()}
+        parent={{ expanded: true, objType: "", root: true }}
+      />
       {/* </JSONRefContext.Provider> */}
     </ul>
   );
