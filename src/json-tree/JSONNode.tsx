@@ -98,6 +98,26 @@ const EditableString: Component<{
   );
 };
 
+const EditableBoolean: Component<{
+  value: boolean;
+  setValue: (s: boolean) => void;
+}> = (props) => {
+  const [val, setVal] = createSignal(props.value);
+  onMount(() => {
+    let id = setInterval(() => {
+      try {
+        setVal(props.value);
+      } catch (e) {}
+    }, 100);
+    onCleanup(() => clearInterval(id));
+  });
+  return (
+    <span>
+      <input type="checkbox" checked={val()} onChange={(e) => props.setValue(e.currentTarget.checked)}></input>
+    </span>
+  );
+};
+
 const EditableNumber: Component<{
   value: number;
   setValue: (s: number) => void;
@@ -186,7 +206,9 @@ export const JSONNode: Component<
           <EditableString value={raw} setValue={setRaw}></EditableString>
         );
       case "Boolean":
-        return (raw: boolean) => (raw ? "true" : "false");
+        return (raw: boolean, setRaw: (b: boolean) => any) => (
+          <EditableBoolean value={raw} setValue={setRaw}></EditableBoolean>
+        );
       case "Date":
         return (raw: Date) => raw.toISOString();
       case "Null":
@@ -201,7 +223,7 @@ export const JSONNode: Component<
           return (
             <EditableString
               value={raw.textContent}
-              setValue={(...args) => (raw.textContent = args[0])}
+              setValue={(...args) => (raw.textContent = args[args.length - 1])}
             ></EditableString>
           );
           // const amOnlyTextNode = raw.parentElement.childNodes.length === 1;
