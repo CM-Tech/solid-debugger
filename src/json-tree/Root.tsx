@@ -16,7 +16,8 @@ export const jsonNoLoops = (a: any) => {
 
 export const Root: Component<{
   key?: string;
-  value: object;
+  value: any;
+  setValue?: (...args: any[]) => any;
   onChange?: (v: object) => void;
 }> = (props) => {
   const [state, setState] = createCyclicState({ v: props.value });
@@ -34,6 +35,12 @@ export const Root: Component<{
       }}
     >
       <JSONNode
+        setValue={(...args) => {
+          setState("v", ...args);
+          if (props.setValue) {
+            props.setValue(...args);
+          }
+        }}
         key={props.key}
         value={state.v}
         parent={{ isRoot: true, expanded: true, isArray: false, isHTML: false, type: "" }}

@@ -1,12 +1,13 @@
 import { Component, createMemo } from "solid-js";
 import { JSONNested } from "./JSONNested";
-import { JSONNodeProps } from "./p";
+import { JSONEditableProps, JSONNodeProps } from "./p";
 export const JSONIterableArrayNode: Component<
   {
     key: string;
     value: any[];
     nodeType: string;
-  } & JSONNodeProps
+  } & JSONNodeProps &
+    JSONEditableProps
 > = (props) => {
   let keys = createMemo(() => {
     let result = [];
@@ -25,6 +26,8 @@ export const JSONIterableArrayNode: Component<
   }
   return (
     <JSONNested
+      value={props.value}
+      setValue={props.setValue}
       key={props.key}
       nodeType={props.nodeType}
       parent={props.parent}

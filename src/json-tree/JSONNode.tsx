@@ -1,5 +1,6 @@
-import { Component, createMemo, onCleanup, onMount } from "solid-js";
+import { Component, createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
 import { createCyclicState } from "../cyclicState";
+import { colors } from "../theme";
 import { ErrorNode } from "./ErrorNode";
 import { JSONArrayNode } from "./JSONArrayNode";
 import { JSONHTMLNode } from "./JSONHTMLNode";
@@ -9,7 +10,7 @@ import { JSONMapEntryNode } from "./JSONMapEntryNode";
 import { JSONObjectNode } from "./JSONObjectNode";
 import { JSONValueNode } from "./JSONValueNode";
 import objType from "./objType";
-import { JSONNodeProps } from "./p";
+import { JSONEditableProps, JSONNodeProps } from "./p";
 
 function getComponent(nodeType: string, value: any): Component<any> {
   switch (nodeType) {
@@ -39,11 +40,125 @@ function Switcher(props: any) {
   });
 }
 
+const EditableString: Component<{
+  value: string;
+  setValue: (s: string) => void;
+}> = (props) => {
+  const [editing, setEditing] = createSignal(false);
+  const [editVal, setEditVal] = createSignal(props.value);
+  const [val, setVal] = createSignal(props.value);
+  onMount(() => {
+    let id = setInterval(() => {
+      try {
+        setVal(props.value);
+      } catch (e) {}
+    }, 100);
+    onCleanup(() => clearInterval(id));
+  });
+  return (
+    <span>
+      <Show when={editing()}>
+        "
+        <input
+          onChange={(e) => setEditVal(e.currentTarget.value)}
+          onKeyUp={(e) => setEditVal(e.currentTarget.value)}
+          value={editVal()}
+          size={editVal().length - 5}
+          style={{
+            "width": "fit-content",
+            "background": "transparent",
+            "color": "inherit",
+            "font-size": "inherit",
+            "border": "none",
+            "border-bottom": `2px solid ${colors.ansi.red}`,
+            "font-family": "inherit",
+            "display": "inline-block",
+          }}
+          onBlur={(e) => {
+            props.setValue(e.currentTarget.value);
+            setEditing(false);
+          }}
+        ></input>
+        "
+      </Show>
+      <Show when={!editing()}>{`"${val()}"`}</Show>
+      <span
+        onClick={() => {
+          if (editing()) {
+            props.setValue(editVal());
+          } else {
+            setEditVal(props.value);
+          }
+          setEditing(!editing());
+        }}
+      >
+        
+      </span>
+    </span>
+  );
+};
+
+const EditableNumber: Component<{
+  value: number;
+  setValue: (s: number) => void;
+}> = (props) => {
+  const [editing, setEditing] = createSignal(false);
+  const [editVal, setEditVal] = createSignal(props.value);
+  const [val, setVal] = createSignal(props.value);
+  onMount(() => {
+    let id = setInterval(() => {
+      try {
+        setVal(props.value);
+      } catch (e) {}
+    }, 100);
+    onCleanup(() => clearInterval(id));
+  });
+  return (
+    <span>
+      <Show when={editing()}>
+        <input
+          type="number"
+          onChange={(e) => setEditVal(e.currentTarget.valueAsNumber)}
+          value={editVal()}
+          size={editVal().toString().length - 5}
+          style={{
+            "width": "fit-content",
+            "background": "transparent",
+            "color": "inherit",
+            "font-size": "inherit",
+            "border": "none",
+            "border-bottom": `2px solid ${colors.ansi.cyan}`,
+            "font-family": "inherit",
+            "display": "inline-block",
+          }}
+          onBlur={(e) => {
+            props.setValue(e.currentTarget.valueAsNumber);
+            setEditing(false);
+          }}
+        ></input>
+      </Show>
+      <Show when={!editing()}>{`${val()}`}</Show>
+      <span
+        onClick={() => {
+          if (editing()) {
+            props.setValue(editVal());
+          } else {
+            setEditVal(props.value);
+          }
+          setEditing(!editing());
+        }}
+      >
+        
+      </span>
+    </span>
+  );
+};
 export const JSONNode: Component<
   {
     value: any;
     key: string;
-  } & JSONNodeProps
+  } & JSONNodeProps &
+    JSONEditableProps
 > = (props) => {
   const [val, setVal] = createCyclicState({ v: props.value });
   onMount(() => {
@@ -63,10 +178,13 @@ export const JSONNode: Component<
       case "Set":
       case "MapEntry":
       case "Number":
+        return (raw: number, setRaw: (s: number) => any) => <EditableNumber value={raw} setValue={setRaw} />;
       case "HTMLElement":
         return undefined;
       case "String":
-        return (raw: string) => `"${raw}"`;
+        return (raw: string, setRaw: (s: string) => any) => (
+          <EditableString value={raw} setValue={setRaw}></EditableString>
+        );
       case "Boolean":
         return (raw: boolean) => (raw ? "true" : "false");
       case "Date":
@@ -79,19 +197,25 @@ export const JSONNode: Component<
       case "Symbol":
         return (raw: Symbol) => raw.toString();
       case "Text":
-        return (raw: Text) => {
-          const amOnlyTextNode = raw.parentElement.childNodes.length === 1;
-          let list: any[] = [];
-          if (!amOnlyTextNode) list.push(`"`);
-          let lines = `${raw.textContent}`.split(`\n`);
-          for (let i = 0; i < lines.length; i++) {
-            list.push(lines[i]);
-            if (i < lines.length - 1) {
-              list.push(<br />);
-            }
-          }
-          if (!amOnlyTextNode) list.push(`"`);
-          return list;
+        return (raw: Text, setValue: (s: any) => any) => {
+          return (
+            <EditableString
+              value={raw.textContent}
+              setValue={(...args) => (raw.textContent = args[0])}
+            ></EditableString>
+          );
+          // const amOnlyTextNode = raw.parentElement.childNodes.length === 1;
+          // let list: any[] = [];
+          // if (!amOnlyTextNode) list.push(`"`);
+          // let lines = `${raw.textContent}`.split(`\n`);
+          // for (let i = 0; i < lines.length; i++) {
+          //   list.push(lines[i]);
+          //   if (i < lines.length - 1) {
+          //     list.push(<br />);
+          //   }
+          // }
+          // if (!amOnlyTextNode) list.push(`"`);
+          // return list;
         };
       default:
         return () => `<${nodeType}>`;
@@ -102,6 +226,7 @@ export const JSONNode: Component<
     <Switcher
       key={props.key}
       value={val.v}
+      setValue={props.setValue}
       parent={props.parent}
       nodeType={nodeType()}
       valueGetter={getValueGetter(nodeType())}

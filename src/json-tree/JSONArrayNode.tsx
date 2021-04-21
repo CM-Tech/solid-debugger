@@ -1,6 +1,6 @@
 import { Component, createSignal, onCleanup, onMount } from "solid-js";
 import { JSONNested } from "./JSONNested";
-import { JSONNodeProps } from "./p";
+import { JSONEditableProps, JSONNodeProps } from "./p";
 
 export const JSONArrayNode: Component<
   {
@@ -8,7 +8,8 @@ export const JSONArrayNode: Component<
     key: any;
     expanded?: boolean;
     nodeType: string;
-  } & JSONNodeProps
+  } & JSONNodeProps &
+    JSONEditableProps
 > = (props) => {
   const filteredKey = new Set(["length"]);
   const [keys, setKeys] = createSignal([], (a, b) => JSON.stringify(a) === JSON.stringify(b));
@@ -30,6 +31,8 @@ export const JSONArrayNode: Component<
 
   return (
     <JSONNested
+      value={props.value}
+      setValue={props.setValue}
       nodeType={props.nodeType}
       key={props.key}
       expanded={props.expanded ?? false}

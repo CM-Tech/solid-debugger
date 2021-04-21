@@ -7,3 +7,7 @@ export type JSONNodeProps = {
     type: string;
   };
 };
+export type JSONEditableProps = {
+  setValue: (...args: any[]) => any;
+  value: any;
+};

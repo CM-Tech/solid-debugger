@@ -1,6 +1,6 @@
 import { JSONNested } from "./JSONNested";
 import { Component, createMemo, For } from "solid-js";
-import { JSONNodeProps } from "./p";
+import { JSONEditableProps, JSONNodeProps } from "./p";
 
 export const JSONHTMLNode: Component<
   {
@@ -8,12 +8,15 @@ export const JSONHTMLNode: Component<
     expanded?: boolean;
     key: string;
     nodeType: string;
-  } & JSONNodeProps
+  } & JSONNodeProps &
+    JSONEditableProps
 > = (props) => {
   let keys = createMemo(() => Object.getOwnPropertyNames(props.value?.childNodes ?? {}));
 
   return (
     <JSONNested
+      value={props.value}
+      setValue={(...args) => props.setValue("childNodes", ...args)}
       key={props.key ? (props.parent.isHTML ? "" : props.key + ":") : props.key}
       expanded={props.expanded ?? false}
       parent={props.parent}

@@ -1,7 +1,7 @@
 import { JSONNested } from "./JSONNested";
 import MapEntry from "./utils/MapEntry";
 import { Component, createMemo } from "solid-js";
-import { JSONNodeProps } from "./p";
+import { JSONEditableProps, JSONNodeProps } from "./p";
 
 export const JSONIterableMapNode: Component<
   {
@@ -10,7 +10,8 @@ export const JSONIterableMapNode: Component<
     getKey: (v: any) => any;
     getValue: (v: any) => any;
     nodeType: string;
-  } & JSONNodeProps
+  } & JSONNodeProps &
+    JSONEditableProps
 > = (props) => {
   const keys = createMemo(() => {
     let result = [];
@@ -29,6 +30,8 @@ export const JSONIterableMapNode: Component<
 
   return (
     <JSONNested
+      value={props.value}
+      setValue={props.setValue}
       nodeType={props.nodeType}
       key={props.key}
       parent={props.parent}

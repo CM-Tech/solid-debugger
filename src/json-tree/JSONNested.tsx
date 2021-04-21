@@ -2,7 +2,7 @@ import { JSONArrow } from "./JSONArrow";
 import { JSONNode } from "./JSONNode";
 import { JSONKey } from "./JSONKey";
 import { Show, Component, For, createMemo, createSignal, createEffect, JSX } from "solid-js";
-import { JSONNodeProps } from "./p";
+import { JSONEditableProps, JSONNodeProps } from "./p";
 
 export const JSONNested: Component<
   {
@@ -10,6 +10,7 @@ export const JSONNested: Component<
     isArray?: boolean;
     isHTML?: boolean;
     getValue?: (v: any) => any;
+    setValueWithKey?: (k: any, ...args: any[]) => any;
     getPreviewValue?: (v: any) => any;
     getKey?: (v: any) => any;
     key: any;
@@ -22,7 +23,8 @@ export const JSONNested: Component<
     bracketOpen: JSX.Element;
     bracketClose: string;
     nodeType: string;
-  } & JSONNodeProps
+  } & JSONNodeProps &
+    JSONEditableProps
 > = (props) => {
   let previewKeys = createMemo(() => props.previewKeys ?? props.keys);
   let [expanded, setExpanded] = createSignal(props.expanded ?? false);
@@ -69,6 +71,11 @@ export const JSONNested: Component<
                     isArray: props.isArray ?? false,
                     type: props.nodeType,
                   }}
+                  setValue={
+                    props.setValueWithKey
+                      ? (...rest: any[]) => props.setValueWithKey(key, ...rest)
+                      : (...rest: any[]) => props.setValue(key, ...rest)
+                  }
                   value={(() => {
                     try {
                       return expanded()

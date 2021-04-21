@@ -32,7 +32,15 @@ const Info: Component<{ x: keyof Item; active: Item }> = (props) => {
       >
         {props.x}:{" "}
       </code>
-      <Root value={(props.active as any)[props.x]} />
+      <Root
+        value={(props.active as any)[props.x]}
+        setValue={(...args) => {
+          if (args.length === 1) {
+            // console.log("SET",props.active,props.x,args[0]);
+            (props.active as any)[props.x] = args[0];
+          }
+        }}
+      />
     </div>
   );
 };

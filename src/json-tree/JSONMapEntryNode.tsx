@@ -1,6 +1,6 @@
 import { Component } from "solid-js";
 import { JSONNested } from "./JSONNested";
-import { JSONNodeProps } from "./p";
+import { JSONEditableProps, JSONNodeProps } from "./p";
 
 const keys = ["key", "value"];
 
@@ -10,13 +10,16 @@ export const JSONMapEntryNode: Component<
     key: string;
     value: Record<string, any>;
     nodeType: string;
-  } & JSONNodeProps
+  } & JSONNodeProps &
+    JSONEditableProps
 > = (props) => {
   function getValue(key: string) {
     return props.value[key];
   }
   return (
     <JSONNested
+      value={props.value}
+      setValue={props.setValue}
       nodeType={props.nodeType}
       expanded={props.expanded ?? false}
       parent={props.parent}

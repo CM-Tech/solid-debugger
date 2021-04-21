@@ -2,7 +2,7 @@ import { JSONArrow } from "./JSONArrow";
 import { JSONNode } from "./JSONNode";
 import { JSONKey } from "./JSONKey";
 import { Component, createEffect, createMemo, Show, For, createSignal } from "solid-js";
-import { JSONNodeProps } from "./p";
+import { JSONEditableProps, JSONNodeProps } from "./p";
 
 export const ErrorNode: Component<
   {
@@ -10,7 +10,8 @@ export const ErrorNode: Component<
     value: Error;
     nodeType: string;
     expanded?: boolean;
-  } & JSONNodeProps
+  } & JSONNodeProps &
+    JSONEditableProps
 > = (props) => {
   let [expanded, setExpanded] = createSignal(props.expanded ?? true);
 
@@ -36,6 +37,7 @@ export const ErrorNode: Component<
           <ul classList={{ collapse: !expanded() }} style={{ "list-style": "none" }}>
             <Show when={expanded()}>
               <JSONNode
+                setValue={props.setValue}
                 key="message"
                 value={props.value.message}
                 parent={{ expanded: expanded(), isArray: false, isHTML: false, isRoot: false, type: props.nodeType }}
