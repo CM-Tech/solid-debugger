@@ -1,16 +1,17 @@
 import { JSONNested } from "./JSONNested";
 import MapEntry from "./utils/MapEntry";
 import { Component, createMemo } from "solid-js";
+import { JSONNodeProps } from "./p";
 
-export const JSONIterableMapNode: Component<{
-  value: any;
-  isParentExpanded: boolean;
-  isParentArray: boolean;
-  key: any;
-  getKey: (v: any) => any;
-  getValue: (v: any) => any;
-  nodeType: string;
-}> = (props) => {
+export const JSONIterableMapNode: Component<
+  {
+    value: any;
+    key: any;
+    getKey: (v: any) => any;
+    getValue: (v: any) => any;
+    nodeType: string;
+  } & JSONNodeProps
+> = (props) => {
   const keys = createMemo(() => {
     let result = [];
     let i = 0;
@@ -28,9 +29,9 @@ export const JSONIterableMapNode: Component<{
 
   return (
     <JSONNested
+      nodeType={props.nodeType}
       key={props.key}
-      isParentExpanded={props.isParentExpanded}
-      isParentArray={props.isParentArray}
+      parent={props.parent}
       keys={keys()}
       getKey={props.getKey ?? getKey}
       getValue={props.getValue ?? getValue}

@@ -1,6 +1,5 @@
-import { Component, createMemo, createSignal, onCleanup, onMount, useContext } from "solid-js";
+import { Component, createSignal, onCleanup, onMount } from "solid-js";
 import { JSONKey } from "./JSONKey";
-import { JSONRefContext, useRefRef } from "./JSONRefValue";
 import { JSONNodeProps } from "./p";
 
 export const JSONValueNode: Component<
@@ -8,13 +7,13 @@ export const JSONValueNode: Component<
     key: string;
     nodeType: string;
     valueGetter?: (value: any) => any;
+    value: any;
   } & JSONNodeProps
 > = (props) => {
-  const refRef = useRefRef(() => props.jsonRefId, props.jsonRef);
-  const [val, setVal] = createSignal(props.valueGetter ? props.valueGetter(refRef()[0]) : refRef()[0]);
+  const [val, setVal] = createSignal(props.valueGetter ? props.valueGetter(props.value) : props.value + "");
   onMount(() => {
     let id = setInterval(() => {
-      setVal(props.valueGetter ? props.valueGetter(refRef()[0]) : refRef()[0]);
+      setVal(props.valueGetter ? props.valueGetter(props.value) : props.value + "");
     }, 100);
     onCleanup(() => clearInterval(id));
   });

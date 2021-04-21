@@ -2,22 +2,22 @@ import { JSONArrow } from "./JSONArrow";
 import { JSONNode } from "./JSONNode";
 import { JSONKey } from "./JSONKey";
 import { Component, createEffect, createMemo, Show, For, createSignal } from "solid-js";
+import { JSONNodeProps } from "./p";
 
-export const ErrorNode: Component<{
-  key: string | number;
-  value: Error;
-  isParentExpanded: boolean;
-  isParentArray: boolean;
-  expanded?: boolean;
-}> = (props) => {
+export const ErrorNode: Component<
+  {
+    key: string | number;
+    value: Error;
+    nodeType: string;
+    expanded?: boolean;
+  } & JSONNodeProps
+> = (props) => {
   let [expanded, setExpanded] = createSignal(props.expanded ?? true);
 
   const stack = createMemo(() => props.value.stack.split("\n"));
 
   createEffect(() => {
-    if (!props.isParentExpanded) {
-      setExpanded(false);
-    }
+    if (!props.parent.expanded) setExpanded(false);
   });
 
   function toggleExpand() {
@@ -26,23 +26,26 @@ export const ErrorNode: Component<{
 
   return (
     <>
-      <li classList={{ indent: props.isParentExpanded }}>
-        <Show when={props.isParentExpanded}>
+      <li classList={{ indent: props.parent.expanded }}>
+        <Show when={props.parent.expanded}>
           <JSONArrow onClick={toggleExpand} expanded={expanded()} />
         </Show>
-        <JSONKey
-          key={props.key}
-          colon={":"}
-          isParentExpanded={props.isParentExpanded}
-          isParentArray={props.isParentArray}
-        />
+        <JSONKey key={props.key} colon={":"} parent={props.parent} />
         <span onClick={toggleExpand}>Error: {expanded() ? "" : props.value.message}</span>
-        <Show when={props.isParentExpanded}>
+        <Show when={props.parent.expanded}>
           <ul classList={{ collapse: !expanded() }} style={{ "list-style": "none" }}>
             <Show when={expanded()}>
-              <JSONNode key="message" value={props.value.message} />
+              <JSONNode
+                key="message"
+                value={props.value.message}
+                parent={{ expanded: expanded(), isArray: false, isHTML: false, isRoot: false, type: props.nodeType }}
+              />
               <li>
-                <JSONKey key="stack" colon=":" isParentExpanded={props.isParentExpanded} />
+                <JSONKey
+                  key="stack"
+                  colon=":"
+                  parent={{ expanded: expanded(), isArray: false, isHTML: false, isRoot: false, type: props.nodeType }}
+                />
                 <span>
                   <For each={stack()}>
                     {(line, index) => (

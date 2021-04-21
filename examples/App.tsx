@@ -1,8 +1,10 @@
 import { Debugger } from "../src";
 import { colors } from "../src/theme";
-import { createSignal, onMount } from "solid-js";
+import { createSignal, createState, onMount } from "solid-js";
 import { Show } from "solid-js/web";
 import { Root } from "../src/json-tree/Root";
+import objType from "../src/json-tree/objType";
+import { createCyclicState } from "../src/cyclicState";
 
 function Counter() {
   const [count, setCount] = createSignal(0);
@@ -22,8 +24,12 @@ function App() {
   const [visible, setVisible] = createSignal(false, true, { name: "hi cole" });
   const [arr, setArr] = createSignal<any>();
   onMount(() => {
-    let k: any = { hello: "world", b: document.body };
-    k.g = k;
+    let k: any = [{ hello: "world", b: document.body }];
+    // k.g = k;
+    k[1] = k;
+    // const [s,ss]=createCyclicState(k);
+    window.k = k;
+    // console.log(s,objType(s));
     setArr(k);
   });
   return (

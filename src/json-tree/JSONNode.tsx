@@ -1,4 +1,5 @@
-import { Component, createMemo } from "solid-js";
+import { Component, createMemo, onCleanup, onMount } from "solid-js";
+import { createCyclicState } from "../cyclicState";
 import { ErrorNode } from "./ErrorNode";
 import { JSONArrayNode } from "./JSONArrayNode";
 import { JSONHTMLNode } from "./JSONHTMLNode";
@@ -6,8 +7,8 @@ import { JSONIterableArrayNode } from "./JSONIterableArrayNode";
 import { JSONIterableMapNode } from "./JSONIterableMapNode";
 import { JSONMapEntryNode } from "./JSONMapEntryNode";
 import { JSONObjectNode } from "./JSONObjectNode";
-import { useRefRef } from "./JSONRefValue";
 import { JSONValueNode } from "./JSONValueNode";
+import objType from "./objType";
 import { JSONNodeProps } from "./p";
 
 function getComponent(nodeType: string, value: any): Component<any> {
@@ -40,17 +41,18 @@ function Switcher(props: any) {
 
 export const JSONNode: Component<
   {
+    value: any;
     key: string;
-    jsonRef: any;
   } & JSONNodeProps
 > = (props) => {
-  const refRef = useRefRef(() => props.jsonRefId, props.jsonRef);
-
-  if (!refRef()) {
-    return null;
-  }
-  const nodeType = createMemo(() => refRef()[1]);
-
+  const [val, setVal] = createCyclicState({ v: props.value });
+  onMount(() => {
+    let id = setInterval(() => {
+      setVal("v", () => props.value);
+    }, 100);
+    onCleanup(() => clearInterval(id));
+  });
+  const nodeType = createMemo(() => objType(val.v));
   function getValueGetter(nodeType: string) {
     switch (nodeType) {
       case "Object":
@@ -75,7 +77,7 @@ export const JSONNode: Component<
         return () => "undefined";
       case "Function":
       case "Symbol":
-        return (raw: Symbol) => raw?.toString?.();
+        return (raw: Symbol) => raw.toString();
       case "Text":
         return (raw: Text) => {
           const amOnlyTextNode = raw.parentElement.childNodes.length === 1;
@@ -98,9 +100,8 @@ export const JSONNode: Component<
 
   return (
     <Switcher
-      jsonRef={props.jsonRef}
       key={props.key}
-      jsonRefId={props.jsonRefId}
+      value={val.v}
       parent={props.parent}
       nodeType={nodeType()}
       valueGetter={getValueGetter(nodeType())}

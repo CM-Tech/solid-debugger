@@ -1,53 +1,24 @@
-import { createContext, createMemo } from "solid-js";
 import objRecord from "./objRecord";
 import objType from "./objType";
 
-export type JSONRef = [any, string, [string | number, number][]][];
-export const makeJSONRef = (a: any, old?: JSONRef): [JSONRef, number] => {
-  let refR: JSONRef = [];
-  let ref: JSONRef = old ?? [];
+export type JSONRef = [any, string, Record<string, number>][];
+export const makeJSONRef = (a: any) => {
+  let ref: JSONRef = [];
   const regV = (v: any): number => {
-    let d0 = refR.findIndex((x) => x[0] === v);
     let d = ref.findIndex((x) => x[0] === v);
-    if (d0 !== -1) {
+    if (d !== -1) {
       //FIXME: don't assume everything is reference (we should dup strings, nums ect)
       return d;
     }
-
-    if (d === -1) {
-      d = ref.length;
-      ref.push([v, "Undefined", []]);
-    }
-    refR.push(ref[d]);
-    ref[d][1] = objType(v);
-    ref[d][2] = objRecord(v).map(([k, b]) => [k, regV(b)]);
-
+    d = ref.length;
+    ref.push([v, objType(v), {}]);
+    ref[d][2] = Object.fromEntries(Object.entries(objRecord(v)).map(([k, b]) => [k, regV(b)]));
     return d;
   };
-  let n = regV(a);
-  return [ref, n];
+  regV(a);
+  return ref;
 };
 export const makeJSONStringRef = (a: any) => {
-  let ref: JSONRef = makeJSONRef(a)[0];
+  let ref: JSONRef = makeJSONRef(a);
   return JSON.stringify(ref.map((x) => [x[0] + "", x[1], x[2]]));
-};
-export const JSONRefContext = createContext([]);
-const cq = (x: JSONRef[0], y: JSONRef[0]) =>
-  x && y && y[0] === x[0] && y[1] === x[1] && JSON.stringify(y[2]) === JSON.stringify(x[2]);
-export const useRefRef = (jsonRefId: () => number, jsonRefg: JSONRef) => {
-  let g = createMemo(
-    () => {
-      return {
-        v: jsonRefg[jsonRefId()],
-        a: jsonRefg[jsonRefId()][0],
-        b: jsonRefg[jsonRefId()][1],
-        l: jsonRefId(),
-      };
-    },
-    undefined,
-    (a, b) => cq(a.v, b.v)
-  );
-  return () => {
-    return g().v;
-  };
 };

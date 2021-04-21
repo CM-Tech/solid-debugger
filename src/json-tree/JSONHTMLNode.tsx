@@ -1,42 +1,44 @@
-import { Component, For } from "solid-js";
 import { JSONNested } from "./JSONNested";
-import { useRefRef } from "./JSONRefValue";
+import { Component, createMemo, For } from "solid-js";
 import { JSONNodeProps } from "./p";
-import { Root } from "./Root";
 
 export const JSONHTMLNode: Component<
   {
+    value: HTMLElement;
+    expanded?: boolean;
     key: string;
     nodeType: string;
   } & JSONNodeProps
 > = (props) => {
-  const refRef = useRefRef(() => props.jsonRefId, props.jsonRef);
-  if (!refRef()) {
-    return null;
-  }
+  let keys = createMemo(() => Object.getOwnPropertyNames(props.value.childNodes));
+
   return (
     <JSONNested
-      jsonRefId={props.jsonRefId}
-      jsonRef={props.jsonRef}
-      key={props.key ? (props.parent.objType === "HTMLElement" ? "" : props.key + ":") : props.key}
+      key={props.key ? (props.parent.isHTML ? "" : props.key + ":") : props.key}
+      expanded={props.expanded ?? false}
       parent={props.parent}
+      nodeType={props.nodeType}
+      isHTML={true}
+      keys={keys()}
+      previewKeys={keys()}
       previewCount={0}
+      getValue={(k: number) => props.value.childNodes[k]}
       colon={""}
       label={``}
-      expandable={refRef()[0].childNodes.length > 0}
+      expandable={props.value.childNodes.length > 0}
       bracketOpen={
         <>
           {"<"}
-          {refRef()[0].tagName.toLowerCase()}
-          {[...refRef()[0].attributes].length > 0 ? " " : ""}
-          <For each={[...refRef()[0].attributes]}>
+          {props.value.tagName.toLowerCase()}
+          {[...props.value.attributes].length > 0 ? " " : ""}
+          <For each={[...props.value.attributes]}>
             {(a) => (
               <>
                 {" "}
                 <span class="Number">{a.name}</span>
                 {a.value !== "" ? (
                   <>
-                    =<Root value={a.value}></Root>
+                    =<span class="String">{JSON.stringify(a.value)}</span>
                   </>
                 ) : (
                   ""
@@ -47,7 +49,7 @@ export const JSONHTMLNode: Component<
           {">"}
         </>
       }
-      bracketClose={`</${refRef()[0].tagName.toLowerCase()}>`}
+      bracketClose={`</${props.value.tagName.toLowerCase()}>`}
     />
   );
 };

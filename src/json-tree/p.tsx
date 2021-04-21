@@ -1,11 +1,9 @@
-import { JSONRef } from "./JSONRefValue";
-
 export type JSONNodeProps = {
-  jsonRef: JSONRef;
-  jsonRefId: number;
   parent: {
-    root: boolean;
+    isRoot: boolean;
+    isArray: boolean;
+    isHTML: boolean;
     expanded: boolean;
-    objType: string;
+    type: string;
   };
 };
