@@ -10,7 +10,7 @@ export const JSONHTMLNode: Component<
     nodeType: string;
   } & JSONNodeProps
 > = (props) => {
-  let keys = createMemo(() => Object.getOwnPropertyNames(props.value.childNodes));
+  let keys = createMemo(() => Object.getOwnPropertyNames(props.value?.childNodes));
 
   return (
     <JSONNested
@@ -22,16 +22,16 @@ export const JSONHTMLNode: Component<
       keys={keys()}
       previewKeys={keys()}
       previewCount={0}
-      getValue={(k: number) => props.value.childNodes[k]}
+      getValue={(k: number) => props.value?.childNodes?.[k]}
       colon={""}
       label={``}
-      expandable={props.value.childNodes.length > 0}
+      expandable={props.value.childNodes?.length > 0}
       bracketOpen={
         <>
           {"<"}
-          {props.value.tagName.toLowerCase()}
-          {[...props.value.attributes].length > 0 ? " " : ""}
-          <For each={[...props.value.attributes]}>
+          {props.value.tagName?.toLowerCase?.()}
+          {[...props.value?.attributes].length > 0 ? " " : ""}
+          <For each={[...props.value?.attributes]}>
             {(a) => (
               <>
                 {" "}

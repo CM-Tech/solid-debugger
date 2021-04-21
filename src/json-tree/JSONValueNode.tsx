@@ -13,7 +13,9 @@ export const JSONValueNode: Component<
   const [val, setVal] = createSignal(props.valueGetter ? props.valueGetter(props.value) : props.value + "");
   onMount(() => {
     let id = setInterval(() => {
-      setVal(props.valueGetter ? props.valueGetter(props.value) : props.value + "");
+      try {
+        setVal(props.valueGetter ? props.valueGetter(props.value) : props.value + "");
+      } catch (e) {}
     }, 100);
     onCleanup(() => clearInterval(id));
   });
