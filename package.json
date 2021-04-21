@@ -21,6 +21,10 @@
     "prepare": "husky install"
   },
   "author": "modderme123",
+  "contributors": [
+    "modderme123",
+    "Cole Kissane <cole.kissane@gmail.com>"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@types/d3": "^6.3.0",
@@ -35,7 +39,7 @@
   "dependencies": {
     "d3": "^6.7.0",
     "vite": "^2.2.1",
-    "vite-plugin-solid": "^1.6.0"
+    "vite-plugin-solid": "^1.6.1"
   },
   "peerDependencies": {
     "solid-js": ">=0.26"
