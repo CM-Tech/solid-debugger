@@ -1,6 +1,6 @@
 import { Debugger } from "../src";
 import { colors } from "../src/theme";
-import { createSignal, createState, onMount } from "solid-js";
+import { createSignal, createState, getOwner, onMount } from "solid-js";
 import { Show } from "solid-js/web";
 import { Root } from "../src/json-tree/Root";
 import objType from "../src/json-tree/objType";
@@ -24,13 +24,7 @@ function App() {
   const [visible, setVisible] = createSignal(false, true, { name: "hi cole" });
   const [arr, setArr] = createSignal<any>();
   onMount(() => {
-    let k: any = [{ hello: "world", b: document.body }];
-    // k.g = k;
-    k[1] = k;
-    // const [s,ss]=createCyclicState(k);
-    window.k = k;
-    // console.log(s,objType(s));
-    setArr(k);
+    setArr(getOwner());
   });
   return (
     <Debugger>
