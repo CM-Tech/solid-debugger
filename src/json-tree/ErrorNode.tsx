@@ -50,7 +50,7 @@ export const ErrorNode: Component<
                 />
                 <span>
                   <For each={stack()}>
-                    {(line, index) => (
+                    {(line: string, index) => (
                       <>
                         <span classList={{ indent: index() > 0 }}>{line}</span>
                         <br />

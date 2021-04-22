@@ -1,5 +1,5 @@
 import { JSONNested } from "./JSONNested";
-import { Component, createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { Component, createSignal, onCleanup, onMount } from "solid-js";
 import { JSONEditableProps, JSONNodeProps } from "./p";
 
 export const JSONObjectNode: Component<

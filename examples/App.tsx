@@ -1,4 +1,4 @@
-import { createSignal, getOwner, onMount } from "solid-js";
+import { createSignal, onMount } from "solid-js";
 import { Show } from "solid-js/web";
 import { Debugger } from "../src";
 import { Root } from "../src/json-tree/Root";

@@ -1,7 +1,6 @@
 import { JSONNode } from "./JSONNode";
-import { Component, createEffect } from "solid-js";
+import { Component, createEffect, createState } from "solid-js";
 import "./tmp.css";
-import { createCyclicState } from "../cyclicState";
 
 export const jsonNoLoops = (a: any) => {
   let cache = new Set<any>();
@@ -20,14 +19,14 @@ export const Root: Component<{
   setValue?: (...args: any[]) => any;
   onChange?: (v: object) => void;
 }> = (props) => {
-  const [state, setState] = createCyclicState({ v: props.value });
+  const [state, setState] = createState({ v: props.value });
   createEffect(() => {
     setState("v", () => props.value);
   });
   return (
     <ul
       style={{
-        "font-family": "'Victor Mono',monospace",
+        "font-family": "'Victor Mono', monospace",
         "list-style": "none",
         "margin": 0,
         "padding": 0,

@@ -1,5 +1,4 @@
-import { Component, createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
-import { createCyclicState } from "../cyclicState";
+import { Component, createMemo, createSignal, createState, onCleanup, onMount, Show } from "solid-js";
 import { colors } from "../theme";
 import { ErrorNode } from "./ErrorNode";
 import { JSONArrayNode } from "./JSONArrayNode";
@@ -198,7 +197,7 @@ export const JSONNode: Component<
   } & JSONNodeProps &
     JSONEditableProps
 > = (props) => {
-  const [val, setVal] = createCyclicState({ v: props.value });
+  const [val, setVal] = createState({ v: props.value });
   onMount(() => {
     let id = setInterval(() => {
       setVal("v", () => props.value);

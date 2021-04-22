@@ -1,7 +1,7 @@
-import { Component, createSignal, For, getOwner, onCleanup, writeSignal } from "solid-js/dev";
+import { Component, createSignal, For, getOwner, onCleanup, DEV } from "solid-js";
 import { Root } from "./json-tree/Root";
 import { colors } from "./theme";
-
+const { writeSignal } = DEV;
 type Owner = NonNullable<ReturnType<typeof getOwner>>;
 type ComputationArr = NonNullable<Owner["owned"]>;
 type Computation = ComputationArr[number];
