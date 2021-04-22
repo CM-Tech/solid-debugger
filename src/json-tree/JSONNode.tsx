@@ -44,7 +44,9 @@ const EditableString: Component<{
   value: string;
   setValue: (s: string) => void;
 }> = (props) => {
-  const [editing, setEditing] = createSignal(false, undefined, { name: "editing" });
+  const [editing, setEditing] = createSignal(false, undefined, {
+    name: "editing",
+  });
   const [editVal, setEditVal] = createSignal(props.value);
   const [val, setVal] = createSignal(props.value);
   onMount(() => {
@@ -81,7 +83,14 @@ const EditableString: Component<{
         ></input>
         "
       </Show>
-      <Show when={!editing()}>{`"${val()}"`}</Show>
+      <Show when={!editing()}>
+        <span
+          onDblClick={() => {
+            setEditVal(props.value);
+            setEditing(true);
+          }}
+        >{`"${val()}"`}</span>
+      </Show>
       <span
         onClick={() => {
           if (editing()) {
@@ -122,7 +131,9 @@ const EditableNumber: Component<{
   value: number;
   setValue: (s: number) => void;
 }> = (props) => {
-  const [editing, setEditing] = createSignal(false, undefined, { name: "editing" });
+  const [editing, setEditing] = createSignal(false, undefined, {
+    name: "editing",
+  });
   const [editVal, setEditVal] = createSignal(props.value);
   const [val, setVal] = createSignal(props.value);
   onMount(() => {
@@ -157,7 +168,14 @@ const EditableNumber: Component<{
           }}
         ></input>
       </Show>
-      <Show when={!editing()}>{`${val()}`}</Show>
+      <Show when={!editing()}>
+        <span
+          onDblClick={() => {
+            setEditVal(props.value);
+            setEditing(true);
+          }}
+        >{`${val()}`}</span>
+      </Show>
       <span
         onClick={() => {
           if (editing()) {
