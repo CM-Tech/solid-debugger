@@ -19,7 +19,7 @@ function Counter() {
 }
 
 function App() {
-  const [visible, setVisible] = createSignal(false, true, { name: "hi cole" });
+  const [visible, setVisible] = createSignal(false, true, { name: "visible-signal-edit-me-in-debugger" });
   const [arr, setArr] = createSignal<any>();
   onMount(() => {
     let o: any = {};

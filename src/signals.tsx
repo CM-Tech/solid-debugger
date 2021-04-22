@@ -1,4 +1,4 @@
-import { Component, createSignal, For, getOwner, onCleanup } from "solid-js";
+import { Component, createSignal, For, getOwner, onCleanup, writeSignal } from "solid-js/dev";
 import { Root } from "./json-tree/Root";
 import { colors } from "./theme";
 
@@ -70,7 +70,16 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
                   {el.name || "unnamed"}
                 </div>
                 <div>
-                  <Root value={el.value}></Root>
+                  <Root
+                    value={el.value}
+                    setValue={(...args) => {
+                      if (args.length === 1) {
+                        writeSignal.bind(el)(args[0]);
+                      } else {
+                        writeSignal.bind(el)(el.value);
+                      }
+                    }}
+                  ></Root>
                 </div>
               </>
             )}
