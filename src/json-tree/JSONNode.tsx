@@ -44,7 +44,7 @@ const EditableString: Component<{
   value: string;
   setValue: (s: string) => void;
 }> = (props) => {
-  const [editing, setEditing] = createSignal(false);
+  const [editing, setEditing] = createSignal(false, undefined, { name: "editing" });
   const [editVal, setEditVal] = createSignal(props.value);
   const [val, setVal] = createSignal(props.value);
   onMount(() => {
@@ -122,7 +122,7 @@ const EditableNumber: Component<{
   value: number;
   setValue: (s: number) => void;
 }> = (props) => {
-  const [editing, setEditing] = createSignal(false);
+  const [editing, setEditing] = createSignal(false, undefined, { name: "editing" });
   const [editVal, setEditVal] = createSignal(props.value);
   const [val, setVal] = createSignal(props.value);
   onMount(() => {
