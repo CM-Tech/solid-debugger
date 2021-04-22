@@ -26,10 +26,18 @@ export const JSONNested: Component<
   } & JSONNodeProps &
     JSONEditableProps
 > = (props) => {
-  let previewKeys = createMemo(() => props.previewKeys ?? props.keys);
+  let previewKeys = createMemo(
+    () => props.previewKeys ?? props.keys,
+    undefined,
+    (array1, array2) => array1.length === array2.length && array1.every((value, index) => value === array2[index])
+  );
   let [expanded, setExpanded] = createSignal(props.expanded ?? false);
 
-  let slicedKeys = createMemo(() => (expanded() ? props.keys : previewKeys().slice(0, props.previewCount ?? 5)));
+  let slicedKeys = createMemo(
+    () => (expanded() ? props.keys : previewKeys().slice(0, props.previewCount ?? 5)),
+    undefined,
+    (array1, array2) => array1.length === array2.length && array1.every((value, index) => value === array2[index])
+  );
 
   createEffect(() => {
     if (!props.parent.expanded) {

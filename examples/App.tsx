@@ -1,10 +1,8 @@
-import { Debugger } from "../src";
-import { colors } from "../src/theme";
-import { createSignal, createState, getOwner, onMount } from "solid-js";
+import { createSignal, getOwner, onMount } from "solid-js";
 import { Show } from "solid-js/web";
+import { Debugger } from "../src";
 import { Root } from "../src/json-tree/Root";
-import objType from "../src/json-tree/objType";
-import { createCyclicState } from "../src/cyclicState";
+import { colors } from "../src/theme";
 
 function Counter() {
   const [count, setCount] = createSignal(0);
@@ -24,7 +22,14 @@ function App() {
   const [visible, setVisible] = createSignal(false, true, { name: "hi cole" });
   const [arr, setArr] = createSignal<any>();
   onMount(() => {
-    setArr(getOwner());
+    let o: any = {};
+    o.loop = o;
+    o.function = alert;
+    o.string = "Make Life Take The Lemons Back!";
+    o.number = 47;
+    o.date = new Date();
+    o.array = [o, "I came in 1st place! I must have won!", "You know arrays are zero indexed....."];
+    setArr(o);
   });
   return (
     <Debugger>
