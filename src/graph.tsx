@@ -24,7 +24,7 @@ const Info: Component<{ x: keyof Item; active: Item }> = (props) => {
           "color": "#d8dee9",
           "flex-shrink": 0,
           "flex-grow": 0,
-          "font-family": '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"',
+          "font-family": '"Victor Mono", monospace',
           "font-weight": "normal",
           "font-size": " 14px",
           "line-height": "19px",

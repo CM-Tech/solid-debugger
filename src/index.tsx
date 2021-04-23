@@ -84,7 +84,7 @@ export const Debugger: Component<{}> = (props) => {
             "height": bbox().height + "px",
             "border": `1px dotted ${colors.ansi.blue}`,
             "pointer-events": "none",
-            "font-family": "'Victor Mono',monospace",
+            "font-family": "'Victor Mono', monospace",
           }}
         />
         <div style={{ [open() ? "padding-bottom" : ""]: `${height()}px` }}>{children}</div>
@@ -110,6 +110,7 @@ export const Debugger: Component<{}> = (props) => {
                 "text-align": "center",
                 "width": "48px",
                 "height": "48px",
+                "font-family": "'Victor Mono', monospace",
               }}
               onClick={() => setOpen(true)}
             >

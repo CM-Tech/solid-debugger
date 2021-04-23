@@ -3,6 +3,7 @@
     "skipDefaultLibCheck": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
+    "esModuleInterop": true,
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "node",

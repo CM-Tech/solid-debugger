@@ -35,7 +35,7 @@ export const Root: Component<{
     >
       <JSONNode
         setValue={(...args) => {
-          setState("v", ...args);
+          (setState as any)("v", ...args);
           if (props.setValue) {
             props.setValue(...args);
           }
