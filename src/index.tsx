@@ -3,6 +3,7 @@ import { NodeGraph } from "./graph";
 import { SignalList } from "./signals";
 import { colors } from "./theme";
 import "./font.css";
+
 if (!window._$afterUpdate) {
   const solidUpdateListeners: (() => void)[] = [];
   window.addSolidUpdateListener = (listener: () => void) => {
@@ -12,11 +13,7 @@ if (!window._$afterUpdate) {
     delete solidUpdateListeners[id];
   };
   window._$afterUpdate = () => {
-    for (let k of solidUpdateListeners) {
-      try {
-        k();
-      } catch (e) {}
-    }
+    for (let k of solidUpdateListeners) k();
   };
 }
 
@@ -84,7 +81,7 @@ export const Debugger: Component<{}> = (props) => {
             "height": bbox().height + "px",
             "border": `1px dotted ${colors.ansi.blue}`,
             "pointer-events": "none",
-            "font-family": "'Victor Mono', monospace",
+            "z-index": 9999,
           }}
         />
         <div style={{ [open() ? "padding-bottom" : ""]: `${height()}px` }}>{children}</div>
