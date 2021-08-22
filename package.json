@@ -2,21 +2,17 @@
   "name": "solid-debugger",
   "version": "0.0.1",
   "description": "",
-  "main": "./dist/solid-debugger.cjs.js",
   "module": "./dist/solid-debugger.es.js",
   "exports": {
-    ".": {
-      "import": "./dist/solid-debugger.es.js",
-      "browser": "./dist/solid-debugger.es.js"
-    },
+    ".": "./dist/solid-debugger.es.js",
     "./styles": "./dist/style.css"
   },
-  "types": "./dist/types/solid-debugger.d.ts",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && tsc -p tsconfig-build.json",
     "format": "prettier -w .",
     "dev": "vite -c vite-demo.config.ts",
     "build-demo": "vite build -c vite-demo.config.ts"

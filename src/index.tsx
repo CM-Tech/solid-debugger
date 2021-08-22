@@ -17,12 +17,8 @@ if (!window._$afterUpdate) {
   };
 }
 
-export const Debugger: Component<{}> = (props) => {
-  let children: JSX.Element;
-  const root = createRoot(() => {
-    children = props.children;
-    return getOwner()!;
-  });
+export const Debugger: Component = (props) => {
+  const [children, root] = createRoot(() => [props.children, getOwner()!]);
 
   const [outlineBbox, setBbox] = createSignal({ x: -10, y: -10, width: 0, height: 0 });
   let [open, setOpen] = createSignal(false);
@@ -53,7 +49,7 @@ export const Debugger: Component<{}> = (props) => {
     }
   });
 
-  const buttonStyles: JSX.CSSProperties = {
+  const buttonStyles = (active: boolean): JSX.CSSProperties => ({
     "border-radius": "0px",
     "border": "none",
     "padding": "6px",
@@ -65,7 +61,8 @@ export const Debugger: Component<{}> = (props) => {
     "border-width": "2px 0 2px 0",
     "font-weight": "bold",
     "border-top-color": colors.backgroundColor,
-  };
+    "border-bottom": active ? `2px solid ${colors.ansi.blue}` : `2px solid ${colors.backgroundColor}`,
+  });
 
   return (
     <>
@@ -82,7 +79,7 @@ export const Debugger: Component<{}> = (props) => {
         }}
       />
 
-      <div style={{ [open() ? "padding-bottom" : ""]: `${height()}px` }}>{children}</div>
+      <div style={{ "padding-bottom": open() ? `${height()}px` : undefined }}>{children}</div>
       <footer style={{ "font-size": "clamp(16px, 1.5vw, 18px)" }}>
         <Show when={!open()}>
           <button
@@ -173,24 +170,10 @@ export const Debugger: Component<{}> = (props) => {
             onMouseDown={[setIsDragging, true]}
           >
             {leftButtons()}
-            <button
-              style={{
-                ...buttonStyles,
-                "border-bottom":
-                  tab() !== "signals" ? `2px solid ${colors.backgroundColor}` : `2px solid ${colors.ansi.blue}`,
-              }}
-              onClick={() => setTab("signals")}
-            >
+            <button style={buttonStyles(tab() === "signals")} onClick={() => setTab("signals")}>
               Signals
             </button>
-            <button
-              style={{
-                ...buttonStyles,
-                "border-bottom":
-                  tab() !== "graph" ? `2px solid ${colors.backgroundColor}` : `2px solid ${colors.ansi.blue}`,
-              }}
-              onClick={() => setTab("graph")}
-            >
+            <button style={buttonStyles(tab() === "graph")} onClick={() => setTab("graph")}>
               Graph
             </button>
           </div>

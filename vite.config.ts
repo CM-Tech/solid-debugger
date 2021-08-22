@@ -4,6 +4,7 @@ import path from "path";
 
 export default defineConfig({
   plugins: [solid({ dev: true })],
+  publicDir: "fonts",
   build: {
     lib: {
       entry: path.resolve(__dirname, "src/index.tsx"),

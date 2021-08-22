@@ -46,7 +46,7 @@ export const JSONNested: Component<
   });
 
   function toggleExpand() {
-    setExpanded(!expanded() && (!props.notExpandable));
+    setExpanded(!expanded() && !props.notExpandable);
   }
 
   function expand() {
@@ -56,7 +56,7 @@ export const JSONNested: Component<
   return (
     <li classList={{ indent: props.parent.expanded }}>
       <label>
-        <Show when={(!props.notExpandable) && props.parent.expanded}>
+        <Show when={!props.notExpandable && props.parent.expanded}>
           <JSONArrow onClick={toggleExpand} expanded={expanded()} />
         </Show>
         <JSONKey key={props.key} colon={props.colon ?? ":"} parent={props.parent} onClick={toggleExpand} />
