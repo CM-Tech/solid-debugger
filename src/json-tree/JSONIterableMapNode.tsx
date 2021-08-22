@@ -7,9 +7,8 @@ export const JSONIterableMapNode: Component<
   {
     value: any;
     key: any;
-    getKey: (v: any) => any;
-    getValue: (v: any) => any;
     nodeType: string;
+    valueGetter?: (value: any, setValue: any) => any;
   } & JSONNodeProps &
     JSONEditableProps
 > = (props) => {
@@ -36,8 +35,8 @@ export const JSONIterableMapNode: Component<
       key={props.key}
       parent={props.parent}
       keys={keys()}
-      getKey={props.getKey ?? getKey}
-      getValue={props.getValue ?? getValue}
+      getKey={getKey}
+      getValue={getValue}
       label={`${props.nodeType}(${keys().length})`}
       colon=""
       bracketOpen={"{"}

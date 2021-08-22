@@ -3,20 +3,28 @@ import { Root } from "./json-tree/Root";
 import { colors } from "./theme";
 const { writeSignal } = DEV;
 type Owner = NonNullable<ReturnType<typeof getOwner>>;
-type ComputationArr = NonNullable<Owner["owned"]>;
-type Computation = ComputationArr[number];
+type Computation = NonNullable<Owner["owned"]>[number];
 type Signal = NonNullable<Computation["sources"]>[number];
 let updating = false;
 
 export const SignalList: Component<{ root: Owner }> = (props) => {
   let signals = [] as Signal[];
 
-  let [signalsS, setSignalsS] = createSignal([]);
+  let [signalsS, setSignalsS] = createSignal<Signal[]>([]);
   let walked = new Set();
 
   let queue = [props.root];
-  function oneEl(x: Computation | Signal | Owner) {
+  function oneEl(x: Computation | Signal | Owner | null) {
     if (x == undefined || walked.has(x)) return;
+
+    // If we have an owner, make sure that it is a child of root so we don't escape the children of the debugger
+    if ((x as Owner).owner != undefined) {
+      let xOwner = x as Owner | null;
+      while (xOwner != props.root) {
+        if (!xOwner) return;
+        xOwner = xOwner.owner;
+      }
+    }
 
     [...((x as Computation).sources || []), ...[(x as Computation).owner]].forEach((y) => oneEl(y));
 
@@ -69,17 +77,22 @@ export const SignalList: Component<{ root: Owner }> = (props) => {
                 >
                   {el.name || "unnamed"}
                 </div>
-                <div>
+                <div
+                  style={{
+                    "display": "flex",
+                    "align-items": "center",
+                  }}
+                >
                   <Root
                     value={el.value}
                     setValue={(...args) => {
                       if (args.length === 1) {
-                        writeSignal.bind(el)(args[0]);
+                        writeSignal(el, args[0]);
                       } else {
-                        writeSignal.bind(el)(el.value);
+                        writeSignal(el, el.value);
                       }
                     }}
-                  ></Root>
+                  />
                 </div>
               </>
             )}

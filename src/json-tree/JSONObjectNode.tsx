@@ -1,5 +1,5 @@
 import { JSONNested } from "./JSONNested";
-import { Component, createSignal, onCleanup, onMount } from "solid-js";
+import { Component, createSignal, onCleanup } from "solid-js";
 import { JSONEditableProps, JSONNodeProps } from "./p";
 
 export const JSONObjectNode: Component<
@@ -11,10 +11,10 @@ export const JSONObjectNode: Component<
   } & JSONNodeProps &
     JSONEditableProps
 > = (props) => {
-  const [keys, setKeys] = createSignal(
-    [],
-    (array1, array2) => array1.length === array2.length && array1.every((value, index) => value === array2[index])
-  );
+  const [keys, setKeys] = createSignal<string[]>([], {
+    equals: (array1, array2) =>
+      array1.length === array2.length && array1.every((value, index) => value === array2[index]),
+  });
   const ud = () => {
     try {
       setKeys(Object.getOwnPropertyNames(props.value));
@@ -23,10 +23,9 @@ export const JSONObjectNode: Component<
     }
   };
   ud();
-  onMount(() => {
-    let id = setInterval(ud, 100);
-    onCleanup(() => clearInterval(id));
-  });
+
+  let id = setInterval(ud, 100);
+  onCleanup(() => clearInterval(id));
 
   return (
     <JSONNested

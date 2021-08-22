@@ -1,4 +1,4 @@
-import { Component, createSignal, onCleanup, onMount } from "solid-js";
+import { Component, createSignal, onCleanup } from "solid-js";
 import { JSONNested } from "./JSONNested";
 import { JSONEditableProps, JSONNodeProps } from "./p";
 
@@ -12,7 +12,10 @@ export const JSONArrayNode: Component<
     JSONEditableProps
 > = (props) => {
   const filteredKey = new Set(["length"]);
-  const [keys, setKeys] = createSignal([], (a, b) => JSON.stringify(a) === JSON.stringify(b));
+  const [keys, setKeys] = createSignal<string[]>([], {
+    equals: (array1, array2) =>
+      array1.length === array2.length && array1.every((value, index) => value === array2[index]),
+  });
   const [length, setLength] = createSignal(0);
   const ud = () => {
     try {
@@ -24,10 +27,9 @@ export const JSONArrayNode: Component<
     }
   };
   ud();
-  onMount(() => {
-    let id = setInterval(ud, 100);
-    onCleanup(() => clearInterval(id));
-  });
+
+  let id = setInterval(ud, 100);
+  onCleanup(() => clearInterval(id));
 
   return (
     <JSONNested
@@ -40,7 +42,7 @@ export const JSONArrayNode: Component<
       isArray={true}
       keys={keys()}
       previewKeys={keys().filter((key) => !filteredKey.has(key))}
-      getValue={(key: any) => props.value[key]}
+      getValue={(key) => props.value[key]}
       label={`Array(${length()})`}
       bracketOpen="["
       bracketClose="]"

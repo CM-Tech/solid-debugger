@@ -1,4 +1,5 @@
-import { Component, createMemo, createSignal, createState, onCleanup, onMount, Show } from "solid-js";
+import { Component, createMemo, createSignal, onCleanup, Show } from "solid-js";
+import { Dynamic } from "solid-js/web";
 import { colors } from "../theme";
 import { ErrorNode } from "./ErrorNode";
 import { JSONArrayNode } from "./JSONArrayNode";
@@ -11,7 +12,7 @@ import { JSONValueNode } from "./JSONValueNode";
 import objType from "./objType";
 import { JSONEditableProps, JSONNodeProps } from "./p";
 
-function getComponent(nodeType: string, value: any): Component<any> {
+function getComponent(nodeType: string, value: any): typeof JSONValueNode | typeof JSONIterableMapNode {
   switch (nodeType) {
     case "HTMLElement":
       return JSONHTMLNode;
@@ -27,49 +28,26 @@ function getComponent(nodeType: string, value: any): Component<any> {
       return typeof value.set === "function" ? JSONIterableMapNode : JSONIterableArrayNode;
     case "MapEntry":
       return JSONMapEntryNode;
-
     default:
       return JSONValueNode;
   }
-}
-function Switcher(props: any) {
-  return createMemo(() => {
-    const component = getComponent(props.nodeType, props.value);
-    return () => component(props);
-  });
 }
 
 const EditableString: Component<{
   value: string;
   setValue: (s: string) => void;
 }> = (props) => {
-  const [editing, setEditing] = createSignal(false, undefined, {
-    name: "editing",
-  });
+  const [editing, setEditing] = createSignal(false);
   const [editVal, setEditVal] = createSignal(props.value);
-  const [val, setVal] = createSignal(props.value);
-  onMount(() => {
-    let id = setInterval(() => {
-      try {
-        setVal(props.value);
-      } catch (e) {}
-    }, 100);
-    onCleanup(() => clearInterval(id));
-  });
+
   return (
     <span>
       <Show when={editing()}>
         "
         <input
-          onChange={(e) => setEditVal(e.currentTarget.value)}
-          onKeyUp={(e) => setEditVal(e.currentTarget.value)}
+          onInput={(e) => setEditVal(e.currentTarget.value)}
           value={editVal()}
-          size={editVal().length - 5}
           style={{
-            "width": "fit-content",
-            "background": "transparent",
-            "color": "inherit",
-            "font-size": "inherit",
             "border": "none",
             "border-bottom": `2px solid ${colors.ansi.red}`,
             "font-family": "inherit",
@@ -79,7 +57,7 @@ const EditableString: Component<{
             props.setValue(e.currentTarget.value);
             setEditing(false);
           }}
-        ></input>
+        />
         "
       </Show>
       <Show when={!editing()}>
@@ -88,7 +66,9 @@ const EditableString: Component<{
             setEditVal(props.value);
             setEditing(true);
           }}
-        >{`"${val()}"`}</span>
+        >
+          "{props.value}"
+        </span>
       </Show>
       <span
         onClick={() => {
@@ -110,18 +90,9 @@ const EditableBoolean: Component<{
   value: boolean;
   setValue: (s: boolean) => void;
 }> = (props) => {
-  const [val, setVal] = createSignal(props.value);
-  onMount(() => {
-    let id = setInterval(() => {
-      try {
-        setVal(props.value);
-      } catch (e) {}
-    }, 100);
-    onCleanup(() => clearInterval(id));
-  });
   return (
     <span>
-      <input type="checkbox" checked={val()} onChange={(e) => props.setValue(e.currentTarget.checked)}></input>
+      <input type="checkbox" checked={props.value} onChange={(e) => props.setValue(e.currentTarget.checked)} />
     </span>
   );
 };
@@ -130,32 +101,17 @@ const EditableNumber: Component<{
   value: number;
   setValue: (s: number) => void;
 }> = (props) => {
-  const [editing, setEditing] = createSignal(false, undefined, {
-    name: "editing",
-  });
+  const [editing, setEditing] = createSignal(false);
   const [editVal, setEditVal] = createSignal(props.value);
-  const [val, setVal] = createSignal(props.value);
-  onMount(() => {
-    let id = setInterval(() => {
-      try {
-        setVal(props.value);
-      } catch (e) {}
-    }, 100);
-    onCleanup(() => clearInterval(id));
-  });
+
   return (
     <span>
       <Show when={editing()}>
         <input
           type="number"
-          onChange={(e) => setEditVal(e.currentTarget.valueAsNumber)}
+          onInput={(e) => setEditVal(e.currentTarget.valueAsNumber)}
           value={editVal()}
-          size={editVal().toString().length - 5}
           style={{
-            "width": "fit-content",
-            "background": "transparent",
-            "color": "inherit",
-            "font-size": "inherit",
             "border": "none",
             "border-bottom": `2px solid ${colors.ansi.cyan}`,
             "font-family": "inherit",
@@ -165,7 +121,7 @@ const EditableNumber: Component<{
             props.setValue(e.currentTarget.valueAsNumber);
             setEditing(false);
           }}
-        ></input>
+        />
       </Show>
       <Show when={!editing()}>
         <span
@@ -173,7 +129,9 @@ const EditableNumber: Component<{
             setEditVal(props.value);
             setEditing(true);
           }}
-        >{`${val()}`}</span>
+        >
+          {props.value}
+        </span>
       </Show>
       <span
         onClick={() => {
@@ -193,18 +151,18 @@ const EditableNumber: Component<{
 export const JSONNode: Component<
   {
     value: any;
-    key: string;
+    key?: string;
   } & JSONNodeProps &
     JSONEditableProps
 > = (props) => {
-  const [val, setVal] = createState({ v: props.value });
-  onMount(() => {
-    let id = setInterval(() => {
-      setVal("v", () => props.value);
-    }, 100);
-    onCleanup(() => clearInterval(id));
-  });
-  const nodeType = createMemo(() => objType(val.v));
+  const [val, setVal] = createSignal(props.value);
+
+  let id = setInterval(() => {
+    setVal(() => props.value);
+  }, 100);
+  onCleanup(() => clearInterval(id));
+
+  const nodeType = createMemo(() => objType(val()));
   function getValueGetter(nodeType: string) {
     switch (nodeType) {
       case "Object":
@@ -219,13 +177,9 @@ export const JSONNode: Component<
       case "HTMLElement":
         return undefined;
       case "String":
-        return (raw: string, setRaw: (s: string) => any) => (
-          <EditableString value={raw} setValue={setRaw}></EditableString>
-        );
+        return (raw: string, setRaw: (s: string) => any) => <EditableString value={raw} setValue={setRaw} />;
       case "Boolean":
-        return (raw: boolean, setRaw: (b: boolean) => any) => (
-          <EditableBoolean value={raw} setValue={setRaw}></EditableBoolean>
-        );
+        return (raw: boolean, setRaw: (b: boolean) => any) => <EditableBoolean value={raw} setValue={setRaw} />;
       case "Date":
         return (raw: Date) => raw.toISOString();
       case "Null":
@@ -236,25 +190,13 @@ export const JSONNode: Component<
       case "Symbol":
         return (raw: Symbol) => raw.toString();
       case "Text":
-        return (raw: Text, setValue: (s: any) => any) => {
+        return (raw: Text) => {
           return (
             <EditableString
-              value={raw.textContent}
+              value={raw.textContent || ""}
               setValue={(...args) => (raw.textContent = args[args.length - 1])}
-            ></EditableString>
+            />
           );
-          // const amOnlyTextNode = raw.parentElement.childNodes.length === 1;
-          // let list: any[] = [];
-          // if (!amOnlyTextNode) list.push(`"`);
-          // let lines = `${raw.textContent}`.split(`\n`);
-          // for (let i = 0; i < lines.length; i++) {
-          //   list.push(lines[i]);
-          //   if (i < lines.length - 1) {
-          //     list.push(<br />);
-          //   }
-          // }
-          // if (!amOnlyTextNode) list.push(`"`);
-          // return list;
         };
       default:
         return () => `<${nodeType}>`;
@@ -262,9 +204,10 @@ export const JSONNode: Component<
   }
 
   return (
-    <Switcher
-      key={props.key}
-      value={val.v}
+    <Dynamic
+      component={getComponent(nodeType(), val())}
+      key={props.key!}
+      value={val()}
       setValue={props.setValue}
       parent={props.parent}
       nodeType={nodeType()}

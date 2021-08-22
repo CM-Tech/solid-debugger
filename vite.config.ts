@@ -8,19 +8,10 @@ export default defineConfig({
     lib: {
       entry: path.resolve(__dirname, "src/index.tsx"),
       name: "solid-debugger",
+      formats: ["es"],
     },
     rollupOptions: {
       external: ["solid-js"],
-      output: [
-        {
-          dir: "dist",
-          format: "cjs",
-        },
-        {
-          dir: "dist",
-          format: "es",
-        },
-      ],
     },
   },
 });

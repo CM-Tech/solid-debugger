@@ -21,19 +21,18 @@ export const JSONHTMLNode: Component<
       expanded={props.expanded ?? false}
       parent={props.parent}
       nodeType={props.nodeType}
-      isHTML={true}
+      isHTML
       keys={keys()}
       previewKeys={keys()}
       previewCount={0}
       getValue={(k: number) => props.value?.childNodes?.[k]}
-      colon={""}
-      label={``}
-      expandable={props.value.childNodes?.length > 0}
+      colon=""
+      label=""
+      notExpandable={!props.value.childNodes?.length}
       bracketOpen={
         <>
           {"<"}
           {props.value.tagName?.toLowerCase?.()}
-          {[...props.value?.attributes].length > 0 ? " " : ""}
           <For each={[...props.value?.attributes]}>
             {(a) => (
               <>

@@ -7,7 +7,7 @@
   display: inline;
 }
 .indent {
-  padding-left: var(--li-identation);
+  padding-left: var(--li-indentation);
 }
 label {
   position: relative;

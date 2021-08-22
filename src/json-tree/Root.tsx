@@ -1,28 +1,12 @@
 import { JSONNode } from "./JSONNode";
-import { Component, createEffect, createState } from "solid-js";
+import { Component } from "solid-js";
 import "./tmp.css";
-
-export const jsonNoLoops = (a: any) => {
-  let cache = new Set<any>();
-  return JSON.stringify(a, (_, value) => {
-    if (typeof value === "object" && value !== null) {
-      if (cache.has(value)) return;
-      cache.add(value);
-    }
-    return value;
-  });
-};
 
 export const Root: Component<{
   key?: string;
   value: any;
-  setValue?: (...args: any[]) => any;
-  onChange?: (v: object) => void;
+  setValue: (...args: any[]) => any;
 }> = (props) => {
-  const [state, setState] = createState({ v: props.value });
-  createEffect(() => {
-    setState("v", () => props.value);
-  });
   return (
     <ul
       style={{
@@ -34,14 +18,9 @@ export const Root: Component<{
       }}
     >
       <JSONNode
-        setValue={(...args) => {
-          (setState as any)("v", ...args);
-          if (props.setValue) {
-            props.setValue(...args);
-          }
-        }}
+        setValue={props.setValue}
         key={props.key}
-        value={state.v}
+        value={props.value}
         parent={{ isRoot: true, expanded: true, isArray: false, isHTML: false, type: "" }}
       />
     </ul>

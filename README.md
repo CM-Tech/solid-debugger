@@ -8,11 +8,18 @@ Eventually you will be able to write the following
 import { render } from "solid-js/web";
 import { Debugger } from "solid-debugger";
 
-function App() {
-  return <Debugger>your app code here</Debugger>;
-}
+const App = () => {
+  return "your app code here";
+};
 
-render(App, document.getElementById("app"));
+render(
+  () => (
+    <Debugger>
+      <App />
+    </Debugger>
+  ),
+  document.getElementById("app")
+);
 ```
 
 # Demo
