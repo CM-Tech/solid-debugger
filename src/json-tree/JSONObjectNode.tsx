@@ -4,12 +4,11 @@ import { JSONEditableProps, JSONNodeProps } from "./p";
 
 export const JSONObjectNode: Component<
   {
-    value: Record<string, any>;
     expanded?: boolean;
     key: string;
     nodeType: string;
   } & JSONNodeProps &
-    JSONEditableProps
+    JSONEditableProps<Record<string, any>>
 > = (props) => {
   const [keys, setKeys] = createSignal<string[]>([], {
     equals: (array1, array2) =>

@@ -11,7 +11,6 @@ export const JSONArrayNode: Component<
   } & JSONNodeProps &
     JSONEditableProps
 > = (props) => {
-  const filteredKey = new Set(["length"]);
   const [keys, setKeys] = createSignal<string[]>([], {
     equals: (array1, array2) =>
       array1.length === array2.length && array1.every((value, index) => value === array2[index]),
@@ -41,7 +40,7 @@ export const JSONArrayNode: Component<
       parent={props.parent}
       isArray={true}
       keys={keys()}
-      previewKeys={keys().filter((key) => !filteredKey.has(key))}
+      previewKeys={keys().filter((key) => key != "length")}
       getValue={(key) => props.value[key]}
       label={`Array(${length()})`}
       bracketOpen="["

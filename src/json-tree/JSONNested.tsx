@@ -1,7 +1,7 @@
 import { JSONArrow } from "./JSONArrow";
 import { JSONNode } from "./JSONNode";
 import { JSONKey } from "./JSONKey";
-import { Show, Component, For, createMemo, createSignal, createEffect, JSX } from "solid-js";
+import { Show, Component, For, createMemo, createSignal, JSX } from "solid-js";
 import { JSONEditableProps, JSONNodeProps } from "./p";
 
 export const JSONNested: Component<
@@ -28,7 +28,8 @@ export const JSONNested: Component<
     equals: (array1, array2) =>
       array1.length === array2.length && array1.every((value, index) => value === array2[index]),
   });
-  let [expanded, setExpanded] = createSignal(props.expanded ?? false);
+  let [trueExpanded, setExpanded] = createSignal(props.expanded ?? false);
+  let expanded = () => props.parent.expanded && trueExpanded();
 
   let slicedKeys = createMemo(
     () => (expanded() ? props.keys : previewKeys().slice(0, props.previewCount ?? 5)),
@@ -38,12 +39,6 @@ export const JSONNested: Component<
         array1.length === array2.length && array1.every((value, index) => value === array2[index]),
     }
   );
-
-  createEffect(() => {
-    if (!props.parent.expanded) {
-      setExpanded(false);
-    }
-  });
 
   function toggleExpand() {
     setExpanded(!expanded() && !props.notExpandable);
@@ -71,7 +66,7 @@ export const JSONNested: Component<
             {(key, index) => (
               <>
                 <JSONNode
-                  key={(props.getKey ?? ((key: string) => key))(key)}
+                  key={props.getKey?.(key) ?? key}
                   parent={{
                     isRoot: false,
                     expanded: expanded(),

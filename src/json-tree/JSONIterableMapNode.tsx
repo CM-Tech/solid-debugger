@@ -5,7 +5,6 @@ import { JSONEditableProps, JSONNodeProps } from "./p";
 
 export const JSONIterableMapNode: Component<
   {
-    value: any;
     key: any;
     nodeType: string;
     valueGetter?: (value: any, setValue: any) => any;

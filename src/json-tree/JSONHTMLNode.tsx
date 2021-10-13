@@ -4,12 +4,11 @@ import { JSONEditableProps, JSONNodeProps } from "./p";
 
 export const JSONHTMLNode: Component<
   {
-    value: HTMLElement;
     expanded?: boolean;
     key: string;
     nodeType: string;
   } & JSONNodeProps &
-    JSONEditableProps
+    JSONEditableProps<HTMLElement>
 > = (props) => {
   let keys = createMemo(() => Object.getOwnPropertyNames(props.value?.childNodes ?? {}));
 

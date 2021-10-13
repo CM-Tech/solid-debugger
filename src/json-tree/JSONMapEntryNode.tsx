@@ -8,10 +8,9 @@ export const JSONMapEntryNode: Component<
   {
     expanded?: boolean;
     key: string;
-    value: Record<string, any>;
     nodeType: string;
   } & JSONNodeProps &
-    JSONEditableProps
+    JSONEditableProps<Record<string, any>>
 > = (props) => {
   function getValue(key: string) {
     return props.value[key];

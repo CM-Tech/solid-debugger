@@ -1,4 +1,4 @@
-export default function objType(obj: object) {
+export function objType(obj: object) {
   const type = Object.prototype.toString.call(obj).slice(8, -1);
   if (type === "Object") {
     if (typeof (obj as Iterable<any>)[Symbol.iterator] === "function") {

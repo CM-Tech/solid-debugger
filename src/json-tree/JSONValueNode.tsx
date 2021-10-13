@@ -7,7 +7,6 @@ export const JSONValueNode: Component<
     key: string;
     nodeType: string;
     valueGetter?: (value: any, setValue: any) => any;
-    value: any;
   } & JSONNodeProps &
     JSONEditableProps
 > = (props) => {

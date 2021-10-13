@@ -1,4 +1,4 @@
-import { Component, createMemo, Show } from "solid-js";
+import { Component, Show } from "solid-js";
 import { JSONNodeProps } from "./p";
 
 export const JSONKey: Component<
@@ -8,9 +8,7 @@ export const JSONKey: Component<
     onClick?: () => void;
   } & JSONNodeProps
 > = (props) => {
-  const showKey = createMemo(
-    () => props.parent.expanded || !(props.parent.isArray ?? false) || props.key != +props.key
-  );
+  const showKey = () => props.parent.expanded || !(props.parent.isArray ?? false) || props.key != +props.key;
   return (
     <Show when={showKey() && props.key && !props.parent.isHTML}>
       <label classList={{ spaced: props.parent.expanded }} style={{ display: "inline-block" }} onClick={props.onClick}>

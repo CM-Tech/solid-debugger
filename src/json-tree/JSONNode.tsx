@@ -9,7 +9,7 @@ import { JSONIterableMapNode } from "./JSONIterableMapNode";
 import { JSONMapEntryNode } from "./JSONMapEntryNode";
 import { JSONObjectNode } from "./JSONObjectNode";
 import { JSONValueNode } from "./JSONValueNode";
-import objType from "./objType";
+import { objType } from "./objType";
 import { JSONEditableProps, JSONNodeProps } from "./p";
 
 function getComponent(nodeType: string, value: any): typeof JSONValueNode | typeof JSONIterableMapNode {

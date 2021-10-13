@@ -4,10 +4,9 @@ import { JSONEditableProps, JSONNodeProps } from "./p";
 export const JSONIterableArrayNode: Component<
   {
     key: string;
-    value: any[];
     nodeType: string;
   } & JSONNodeProps &
-    JSONEditableProps
+    JSONEditableProps<any[]>
 > = (props) => {
   let keys = createMemo(() => {
     let result = [];

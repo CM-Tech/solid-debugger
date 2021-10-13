@@ -1,7 +1,7 @@
 import { JSONArrow } from "./JSONArrow";
 import { JSONNode } from "./JSONNode";
 import { JSONKey } from "./JSONKey";
-import { Component, createEffect, createMemo, Show, For, createSignal } from "solid-js";
+import { Component, Show, For, createSignal } from "solid-js";
 import { JSONEditableProps, JSONNodeProps } from "./p";
 
 export const ErrorNode: Component<
@@ -13,17 +13,10 @@ export const ErrorNode: Component<
   } & JSONNodeProps &
     JSONEditableProps
 > = (props) => {
-  let [expanded, setExpanded] = createSignal(props.expanded ?? true);
+  let [trueExpanded, setExpanded] = createSignal(props.expanded ?? true);
+  const toggleExpand = () => setExpanded(!trueExpanded());
 
-  const stack = createMemo(() => props.value.stack.split("\n"));
-
-  createEffect(() => {
-    if (!props.parent.expanded) setExpanded(false);
-  });
-
-  function toggleExpand() {
-    setExpanded(!expanded());
-  }
+  let expanded = () => props.parent.expanded && trueExpanded();
 
   return (
     <>
@@ -49,7 +42,7 @@ export const ErrorNode: Component<
                   parent={{ expanded: expanded(), isArray: false, isHTML: false, isRoot: false, type: props.nodeType }}
                 />
                 <span>
-                  <For each={stack()}>
+                  <For each={props.value.stack.split("\n")}>
                     {(line: string, index) => (
                       <>
                         <span classList={{ indent: index() > 0 }}>{line}</span>

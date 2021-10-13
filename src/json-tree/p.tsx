@@ -8,7 +8,7 @@ export type JSONNodeProps = {
   };
 };
 
-export type JSONEditableProps = {
-  setValue: (...args: any[]) => any;
-  value: any;
+export type JSONEditableProps<T = any> = {
+  setValue: (...args: any[]) => void;
+  value: T;
 };
