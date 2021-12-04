@@ -28,6 +28,8 @@ export const Debugger: Component = (props) => {
   let [height, setHeight] = createSignal(300);
   const [isDragging, setIsDragging] = createSignal(false);
 
+  const [active, setActive] = createSignal(root, { equals: false });
+
   let offset: number | undefined;
   const onMouseMove = (e: MouseEvent) => {
     const h = window.innerHeight - e.clientY;
@@ -179,7 +181,13 @@ export const Debugger: Component = (props) => {
           </div>
           <Show when={open()}>
             <Show when={tab() == "graph"}>
-              <NodeGraph root={root} setBbox={setBbox} setLeftButtons={setLeftButtons} />
+              <NodeGraph
+                root={root}
+                active={active()}
+                setActive={setActive}
+                setBbox={setBbox}
+                setLeftButtons={setLeftButtons}
+              />
             </Show>
             <Show when={tab() == "signals"}>
               <SignalList root={root} />
