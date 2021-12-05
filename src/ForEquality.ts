@@ -43,6 +43,7 @@ function mapArray2<T, U, V>(list: () => readonly T[], mapFn: (v: T) => U, getID:
       }
       // fast path for new create
       else if (len === 0) {
+        mapped = new Array(newLen);
         for (j = 0; j < newLen; j++) {
           items[j] = getID(newItems[j]);
           mapped[j] = createRoot(mapper, ctx);
@@ -93,7 +94,7 @@ function mapArray2<T, U, V>(list: () => readonly T[], mapFn: (v: T) => U, getID:
           } else mapped[j] = createRoot(mapper, ctx);
         }
         // 3) in case the new set is shorter than the old, set the length of the mapped array
-        len = mapped.length = newLen;
+        mapped = mapped.slice(0, (len = newLen));
         // 4) save a copy of the mapped items for the next update
         items = newItems.map(getID);
       }
@@ -107,9 +108,5 @@ export function BetterFor<T, U extends JSX.Element, V>(props: {
   value: (a: T) => V;
   children: (item: T) => U;
 }) {
-  return createMemo(
-    mapArray2<T, U, V>(() => props.each, props.children, props.value),
-    undefined,
-    { equals: false }
-  );
+  return createMemo(mapArray2<T, U, V>(() => props.each, props.children, props.value));
 }

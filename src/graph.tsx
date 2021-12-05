@@ -1,4 +1,14 @@
-import { Component, createEffect, createSignal, getOwner, onMount, onCleanup, createSelector } from "solid-js";
+import {
+  Component,
+  createEffect,
+  createSignal,
+  getOwner,
+  onMount,
+  onCleanup,
+  createSelector,
+  Show,
+  Index,
+} from "solid-js";
 import * as d3 from "d3";
 import { colors } from "./theme";
 import { Root } from "./json-tree/Root";
@@ -6,6 +16,8 @@ import { BetterFor } from "./ForEquality";
 
 type Owner = NonNullable<ReturnType<typeof getOwner>>;
 type Computation = NonNullable<Owner["owned"]>[number];
+type Signal = NonNullable<Computation["sources"]>[number];
+type Memo = Computation & Signal;
 
 type Item = (Owner | Computation) & {
   x0?: () => number;
@@ -70,8 +82,11 @@ export const NodeGraph: Component<{
   setLeftButtons: any;
 }> = (props) => {
   let svg!: SVGSVGElement;
+  let svg2!: SVGSVGElement;
   const [visTransform, setTransform] = createSignal("");
+  const [visTransform2, setTransform2] = createSignal("");
   const [left, setLeft] = createSignal(400);
+  const [left2, setLeft2] = createSignal(400);
   const [selecting, setSelecting] = createSignal(false);
   const isSelected = createSelector(() => props.active);
 
@@ -121,7 +136,6 @@ export const NodeGraph: Component<{
 
   const tree = d3.tree<Item>().nodeSize([50, 100]);
   function update() {
-    // Compute the new tree layout. We'll stash the old layout in the data.
     const treeData = tree(root);
 
     for (const dt of treeData) {
@@ -167,6 +181,17 @@ export const NodeGraph: Component<{
     d3svg.call(zoome);
   });
 
+  onMount(() => {
+    const d3svg = d3.select(svg2);
+    const { width, height } = svg2.getBoundingClientRect();
+    const zoome = d3
+      .zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.1, 1])
+      .on("zoom", ({ transform }) => setTransform2(transform));
+    zoome.translateBy(d3svg, width / 2, height / 2);
+    d3svg.call(zoome);
+  });
+
   createEffect(() => {
     if (selecting()) {
       const nodes = [];
@@ -200,15 +225,12 @@ export const NodeGraph: Component<{
   });
 
   const [isDragging, setIsDragging] = createSignal(false);
-
   const onMouseMove = (e: MouseEvent) => {
     const w = window.innerWidth - e.clientX;
     if (w < 200) return;
     setLeft(w);
   };
-
   const onMouseUp = () => setIsDragging(false);
-
   createEffect(() => {
     if (isDragging()) {
       window.addEventListener("mousemove", onMouseMove);
@@ -216,6 +238,23 @@ export const NodeGraph: Component<{
     } else {
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
+    }
+  });
+
+  const [isDragging2, setIsDragging2] = createSignal(false);
+  const onMouseMove2 = (e: MouseEvent) => {
+    const w = window.innerWidth - e.clientX - left() - 4;
+    if (w < 200) return;
+    setLeft2(w);
+  };
+  const onMouseUp2 = () => setIsDragging2(false);
+  createEffect(() => {
+    if (isDragging2()) {
+      window.addEventListener("mousemove", onMouseMove2);
+      window.addEventListener("mouseup", onMouseUp2);
+    } else {
+      window.removeEventListener("mousemove", onMouseMove2);
+      window.removeEventListener("mouseup", onMouseUp2);
     }
   });
 
@@ -255,16 +294,13 @@ export const NodeGraph: Component<{
     props.setBbox({ x: -10, y: -10, width: 0, height: 0 });
   });
 
-  createEffect(() => {
-    console.log(nodes());
-  });
   return (
     <div
       style={{
         "display": "grid",
         "width": "100%",
         "height": "100%",
-        "grid-template-columns": `1fr 4px ${left()}px`,
+        "grid-template-columns": `1fr 4px ${left2()}px 4px ${left()}px`,
         "box-shadow": "rgba(0, 0, 0, 0.4) 0 6px 6px -6px inset",
       }}
     >
@@ -276,6 +312,7 @@ export const NodeGraph: Component<{
                 <path
                   stroke={colors.foregroundColor}
                   stroke-width={2}
+                  fill="none"
                   style={{
                     d: `path('${diagonal({
                       source: { x: d.source.data.x0!(), y: d.source.data.y0!() },
@@ -312,7 +349,7 @@ export const NodeGraph: Component<{
                     r: d.data.r!(),
                     transition: `all ${frameTime / 1000}s ease-in-out`,
                   }}
-                ></circle>
+                />
               )}
             </BetterFor>
           </g>
@@ -323,14 +360,79 @@ export const NodeGraph: Component<{
           "border-left": "1px solid rgb(63, 78, 96)",
           "cursor": "col-resize",
         }}
+        onMouseDown={() => setIsDragging2(true)}
+      />
+      <svg ref={svg2} width="100%" height="100%" style={{ "box-shadow": "rgba(0, 0, 0, 0.4) -6px 0 6px -6px inset" }}>
+        <g transform={visTransform2()}>
+          <Index each={(props.active as Computation).sources ?? []}>
+            {(x, i) => (
+              <>
+                <path
+                  stroke={colors.foregroundColor}
+                  stroke-width={2}
+                  fill="none"
+                  d={
+                    diagonal({
+                      source: { x: i * 50 - (((x() as Memo).sources?.length ?? 1) - 1) * 25, y: -50 },
+                      target: { x: 0, y: 50 },
+                    })!
+                  }
+                />
+                <circle
+                  cx={i * 50 - (((x() as Memo).sources?.length ?? 1) - 1) * 25}
+                  r={10}
+                  cy={-50}
+                  stroke-width={5}
+                  cursor="pointer"
+                  fill={"sources" in x() ? computationNodeColor : normalNodeColor}
+                  stroke={"value" in x() && x().value instanceof HTMLElement ? htmlNodeColor : normalNodeColor}
+                  style={{
+                    transition: `all ${frameTime / 1000}s ease-in-out`,
+                  }}
+                  onClick={(e) => {
+                    props.setActive(x() as unknown as Item);
+                    e.stopPropagation();
+                  }}
+                />
+              </>
+            )}
+          </Index>
+          <circle
+            stroke-width={5}
+            fill={
+              (props.active as Computation).componentName
+                ? componentNodeColor
+                : "sources" in props.active
+                ? computationNodeColor
+                : normalNodeColor
+            }
+            stroke={
+              "value" in props.active && props.active.value instanceof HTMLElement ? htmlNodeColor : normalNodeColor
+            }
+            cx={0}
+            cy={50}
+            r={10}
+            style={{
+              transition: `all ${frameTime / 1000}s ease-in-out`,
+            }}
+          />
+        </g>
+      </svg>
+      <div
+        style={{
+          "border-left": "1px solid rgb(63, 78, 96)",
+          "cursor": "col-resize",
+        }}
         onMouseDown={() => setIsDragging(true)}
-      ></div>
+      />
       <div style={{ overflow: "auto" }}>
-        <Info x="name" active={props.active} />
-        <Info x="componentName" active={props.active} />
+        <Show
+          when={props.active.componentName}
+          children={<Info x="componentName" active={props.active} />}
+          fallback={<Info x="name" active={props.active} />}
+        />
         <Info x="value" active={props.active} />
         <Info x="fn" active={props.active} />
-        <Info x="sources" active={props.active} />
       </div>
     </div>
   );
